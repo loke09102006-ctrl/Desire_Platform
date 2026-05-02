@@ -1,1 +1,2647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Desire — Venture Funding Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06080C;
+  --bg2: #090C12;
+  --bg3: #0D1119;
+  --surface: #111620;
+  --surface2: #161D2C;
+  --surface3: #1C2535;
+  --border: rgba(255,255,255,0.05);
+  --border2: rgba(255,255,255,0.09);
+  --border3: rgba(255,255,255,0.14);
+  --gold: #C9A227;
+  --gold2: #F0C860;
+  --gold3: #FFE4A0;
+  --gold-d: rgba(201,162,39,0.10);
+  --gold-glow: rgba(201,162,39,0.22);
+  --gold-glow2: rgba(201,162,39,0.4);
+  --teal: #29D9C2;
+  --teal-d: rgba(41,217,194,0.09);
+  --violet: #7C6FED;
+  --violet-d: rgba(124,111,237,0.1);
+  --text: #ECF0F8;
+  --text2: #7E8AA6;
+  --text3: #404D66;
+  --red: #E56060;
+  --red-d: rgba(229,96,96,0.1);
+  --green: #29C98A;
+  --green-d: rgba(41,201,138,0.1);
+  --sidebar: 260px;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Syne',sans-serif;font-size:14px;
+  min-height:100vh;overflow-x:hidden;
+}
 
+/* GRAIN */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9000;
+}
+
+.page{display:none;}
+.page.active{display:block;}
+
+/* ════════════════════════════════
+   LANDING
+════════════════════════════════ */
+#landing{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:60px 24px;text-align:center;position:relative;overflow:hidden;
+}
+#landing::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201,162,39,0.11) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 50% at 10% 90%, rgba(124,111,237,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 50% at 90% 80%, rgba(41,217,194,0.05) 0%, transparent 50%);
+  pointer-events:none;
+}
+.grid-bg{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size:72px 72px;
+  mask-image:radial-gradient(ellipse 85% 80% at 50% 30%, black 10%, transparent 72%);
+}
+.land-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid rgba(201,162,39,0.3);
+  background:rgba(201,162,39,0.06);
+  border-radius:100px;padding:6px 20px;
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold);font-family:'DM Mono',monospace;
+  margin-bottom:48px;
+  animation:fadeUp .5s ease both;
+}
+.land-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s ease infinite;}
+
+.land-wordmark{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:clamp(72px,12vw,140px);
+  line-height:.95;letter-spacing:-.02em;
+  color:var(--text);margin-bottom:24px;
+  animation:fadeUp .6s .08s ease both;
+}
+.land-wordmark span{
+  background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+.land-sub{
+  font-size:clamp(14px,1.8vw,18px);
+  color:var(--text2);max-width:560px;line-height:1.7;
+  margin-bottom:52px;
+  animation:fadeUp .6s .15s ease both;
+}
+
+.land-actions{
+  display:flex;gap:12px;flex-wrap:wrap;justify-content:center;
+  animation:fadeUp .6s .22s ease both;
+}
+
+.land-stats{
+  display:flex;gap:60px;flex-wrap:wrap;justify-content:center;
+  margin-top:84px;padding-top:40px;
+  border-top:1px solid var(--border2);
+  animation:fadeUp .6s .35s ease both;
+}
+.lstat-num{
+  font-family:'Lora',serif;font-size:40px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  display:block;line-height:1;margin-bottom:5px;
+}
+.lstat-lbl{font-size:10px;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;font-family:'DM Mono',monospace;}
+
+/* ════════════════════════════════
+   ANIMATIONS
+════════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.65)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(201,162,39,0.15)}50%{box-shadow:0 0 40px rgba(201,162,39,0.3)}}
+
+/* ════════════════════════════════
+   BUTTONS
+════════════════════════════════ */
+.btn-gold{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#06080C;border:none;
+  padding:13px 30px;border-radius:var(--radius-sm);
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;letter-spacing:.06em;text-transform:uppercase;
+  transition:all .2s;white-space:nowrap;
+}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 10px 32px var(--gold-glow2);}
+.btn-gold:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+
+.btn-ghost{
+  background:transparent;color:var(--text);
+  border:1px solid var(--border3);
+  padding:13px 30px;border-radius:var(--radius-sm);
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;letter-spacing:.04em;transition:all .2s;white-space:nowrap;
+}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+
+.btn-sm{
+  padding:7px 14px;border-radius:8px;
+  font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;transition:all .15s;font-family:'Syne',sans-serif;white-space:nowrap;
+  border:1px solid var(--border2);background:var(--surface);color:var(--text2);
+}
+.btn-sm:hover{border-color:var(--gold);color:var(--gold);}
+.btn-sm.active{background:var(--gold-d);border-color:var(--gold);color:var(--gold);}
+
+.btn-full{
+  width:100%;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#06080C;border:none;
+  padding:13px;border-radius:var(--radius-sm);
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;letter-spacing:.06em;text-transform:uppercase;
+  transition:all .2s;margin-top:4px;
+}
+.btn-full:hover{transform:translateY(-1px);box-shadow:0 8px 28px var(--gold-glow);}
+.btn-full:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+
+.btn-outline-full{
+  width:100%;
+  background:var(--surface2);color:var(--text);
+  border:1px solid var(--border2);
+  padding:11px;border-radius:var(--radius-sm);
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;letter-spacing:.04em;
+  transition:all .2s;
+}
+.btn-outline-full:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ════════════════════════════════
+   AUTH MODAL
+════════════════════════════════ */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(3,5,10,0.88);
+  backdrop-filter:blur(20px);
+  z-index:2000;align-items:center;justify-content:center;padding:20px;
+}
+.overlay.open{display:flex;animation:fadeIn .2s ease;}
+
+.modal{
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:24px;width:100%;max-width:500px;
+  padding:44px;position:relative;
+  animation:slideUp .3s ease;
+  box-shadow:0 60px 120px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.03), 0 0 60px rgba(201,162,39,0.04);
+}
+.modal-x{
+  position:absolute;top:20px;right:20px;
+  width:32px;height:32px;border:1px solid var(--border);
+  background:var(--surface);border-radius:8px;
+  cursor:pointer;color:var(--text2);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;font-size:13px;
+}
+.modal-x:hover{background:var(--surface2);color:var(--text);}
+
+.modal-wm{
+  font-family:'Lora',serif;font-style:italic;font-size:30px;
+  margin-bottom:4px;
+}
+.modal-wm span{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.modal-caption{font-size:11px;color:var(--text3);margin-bottom:30px;letter-spacing:.06em;font-family:'DM Mono',monospace;}
+
+.tab-toggle{
+  display:flex;background:var(--surface);
+  border-radius:var(--radius-sm);padding:3px;
+  margin-bottom:24px;gap:3px;
+}
+.ttab{
+  flex:1;padding:9px;border:none;background:transparent;
+  border-radius:7px;color:var(--text3);
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;
+  cursor:pointer;transition:all .2s;
+}
+.ttab.active{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#06080C;}
+
+.role-pick{display:flex;gap:10px;margin-bottom:22px;}
+.rcard{
+  flex:1;border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:18px 12px;cursor:pointer;text-align:center;
+  transition:all .2s;background:var(--surface);
+}
+.rcard:hover,.rcard.sel{border-color:var(--gold);background:var(--gold-d);}
+.rcard .ricon{font-size:24px;margin-bottom:8px;}
+.rcard .rlabel{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;}
+.rcard.sel .rlabel{color:var(--gold);}
+
+.fg{margin-bottom:14px;}
+.flbl{
+  display:block;font-size:10px;letter-spacing:.1em;
+  color:var(--text3);margin-bottom:6px;text-transform:uppercase;
+  font-family:'DM Mono',monospace;
+}
+.finput{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:11px 14px;
+  color:var(--text);font-family:'Syne',sans-serif;font-size:13px;
+  outline:none;transition:all .2s;
+}
+.finput:focus{border-color:var(--gold);background:var(--surface2);box-shadow:0 0 0 3px rgba(201,162,39,0.07);}
+.finput::placeholder{color:var(--text3);}
+select.finput option{background:var(--bg3);}
+.frow{display:flex;gap:10px;}
+.frow .fg{flex:1;}
+
+.auth-err{
+  background:var(--red-d);border:1px solid rgba(229,96,96,0.25);
+  color:var(--red);padding:10px 14px;border-radius:8px;
+  font-size:12px;margin-bottom:14px;font-family:'DM Mono',monospace;
+}
+.auth-or{
+  text-align:center;color:var(--text3);font-size:10px;
+  margin:14px 0;position:relative;font-family:'DM Mono',monospace;
+  letter-spacing:.1em;
+}
+.auth-or::before,.auth-or::after{
+  content:'';position:absolute;top:50%;
+  width:43%;height:1px;background:var(--border);
+}
+.auth-or::before{left:0;}.auth-or::after{right:0;}
+
+/* ════════════════════════════════
+   DASHBOARD SHELL
+════════════════════════════════ */
+#dashboard{display:none;}
+#dashboard.active{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{
+  width:var(--sidebar);flex-shrink:0;
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.sb-head{
+  padding:22px 20px 18px;
+  border-bottom:1px solid var(--border);
+}
+.sb-wm{
+  font-family:'Lora',serif;font-style:italic;font-size:26px;
+  margin-bottom:16px;
+}
+.sb-wm span{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.sb-user-card{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px 12px;
+}
+.sb-av{
+  width:36px;height:36px;border-radius:9px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:13px;color:#06080C;
+}
+.sb-uname{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-urole{
+  font-size:9px;color:var(--gold);margin-top:1px;
+  letter-spacing:.1em;text-transform:uppercase;font-family:'DM Mono',monospace;
+}
+
+.sb-nav{padding:14px 12px 0;}
+.nav-section{margin-bottom:20px;}
+.nav-sec-title{
+  font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--text3);padding:0 8px 8px;
+  font-family:'DM Mono',monospace;
+}
+.navbtn{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 10px;border-radius:var(--radius-sm);
+  cursor:pointer;color:var(--text3);font-size:12px;font-weight:700;
+  letter-spacing:.03em;
+  transition:all .15s;border:none;background:none;
+  width:100%;text-align:left;margin-bottom:2px;
+}
+.navbtn:hover{background:var(--surface);color:var(--text);}
+.navbtn.active{background:var(--gold-d);color:var(--gold);border:1px solid rgba(201,162,39,0.15);}
+.navbtn-ic{font-size:14px;width:20px;text-align:center;flex-shrink:0;}
+.nav-badge{
+  margin-left:auto;background:var(--red);color:#fff;
+  font-size:9px;font-weight:700;padding:1px 6px;
+  border-radius:100px;font-family:'DM Mono',monospace;
+}
+.sb-bottom{
+  margin-top:auto;padding:14px 12px;
+  border-top:1px solid var(--border);
+}
+
+/* MAIN */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;}
+
+.topbar{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 28px;
+  border-bottom:1px solid var(--border);
+  background:rgba(9,12,18,0.9);
+  backdrop-filter:blur(12px);
+  position:sticky;top:0;z-index:100;
+}
+.tb-title{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:19px;flex-shrink:0;
+}
+.tb-srch-wrap{position:relative;flex:1;max-width:360px;}
+.tb-srch-ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;}
+.tb-srch{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:8px 12px 8px 34px;
+  color:var(--text);font-family:'Syne',sans-serif;font-size:12px;outline:none;
+  transition:border-color .2s;
+}
+.tb-srch:focus{border-color:var(--gold);}
+.tb-ic-btn{
+  width:36px;height:36px;border:1px solid var(--border);
+  background:var(--surface);border-radius:8px;
+  cursor:pointer;font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;transition:all .15s;
+}
+.tb-ic-btn:hover{border-color:var(--gold);}
+.tb-dot{
+  position:absolute;top:6px;right:6px;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--red);border:2px solid var(--bg2);
+}
+.role-pill{
+  display:flex;align-items:center;gap:6px;
+  background:var(--gold-d);border:1px solid rgba(201,162,39,0.25);
+  border-radius:100px;padding:5px 12px;
+  font-size:10px;font-weight:700;color:var(--gold);
+  letter-spacing:.08em;text-transform:uppercase;
+  font-family:'DM Mono',monospace;flex-shrink:0;
+}
+
+.content{padding:28px 28px 48px;flex:1;overflow-y:auto;}
+
+/* ════════════════════════════════
+   PAGE HEADER
+════════════════════════════════ */
+.ph{margin-bottom:28px;}
+.ph-title{
+  font-family:'Lora',serif;font-style:italic;
+  font-size:32px;line-height:1.1;margin-bottom:6px;
+}
+.ph-title em{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  font-style:italic;
+}
+.ph-sub{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;}
+
+/* ════════════════════════════════
+   METRIC CARDS
+════════════════════════════════ */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.mc{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius);padding:22px 20px;
+  transition:all .25s;position:relative;overflow:hidden;
+}
+.mc::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg, rgba(201,162,39,0.03), transparent);
+  opacity:0;transition:opacity .3s;
+}
+.mc:hover{border-color:rgba(201,162,39,0.2);box-shadow:0 8px 32px rgba(0,0,0,.4);}
+.mc:hover::before{opacity:1;}
+.mc-icon{font-size:20px;margin-bottom:12px;}
+.mc-val{
+  font-family:'Lora',serif;font-size:32px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;
+}
+.mc-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:5px;font-family:'DM Mono',monospace;}
+.mc-delta{font-size:11px;color:var(--green);margin-top:6px;font-family:'DM Mono',monospace;}
+.mc-delta.down{color:var(--red);}
+
+/* ════════════════════════════════
+   CARDS
+════════════════════════════════ */
+.card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;margin-bottom:18px;
+}
+.card-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:15px 20px;border-bottom:1px solid var(--border);
+}
+.card-title{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.card-action{background:none;border:none;color:var(--gold);font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.04em;}
+.card-action:hover{text-decoration:underline;}
+.card-body{padding:20px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+/* ════════════════════════════════
+   STARTUP DISCOVERY GRID
+════════════════════════════════ */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;}
+.scard{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  cursor:pointer;transition:all .25s;
+}
+.scard:hover{
+  border-color:rgba(201,162,39,0.3);transform:translateY(-4px);
+  box-shadow:0 20px 50px rgba(0,0,0,.5), 0 0 0 1px rgba(201,162,39,0.07);
+}
+.scard-cover{
+  height:90px;background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:42px;position:relative;
+  border-bottom:1px solid var(--border);
+}
+.stage-badge{
+  position:absolute;top:10px;right:10px;
+  background:rgba(6,8,12,0.9);
+  border:1px solid var(--gold);color:var(--gold);
+  font-size:9px;padding:3px 9px;border-radius:4px;
+  font-family:'DM Mono',monospace;letter-spacing:.08em;
+}
+.scard-body{padding:15px 16px;}
+.scard-name{font-size:15px;font-weight:700;margin-bottom:5px;}
+.scard-tag{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:10px;}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.tag{
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--text3);font-size:10px;padding:2px 8px;border-radius:4px;
+  font-family:'DM Mono',monospace;
+}
+.smets{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
+  padding-top:10px;border-top:1px solid var(--border);
+}
+.sm-val{
+  font-family:'DM Mono',monospace;font-size:12px;
+  color:var(--gold);font-weight:500;
+}
+.sm-lbl{font-size:9px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.06em;font-family:'DM Mono',monospace;}
+.scard-ftr{
+  display:flex;gap:7px;padding:12px 14px;
+  background:var(--surface);border-top:1px solid var(--border);
+}
+
+/* ════════════════════════════════
+   STARTUP PROFILE DETAIL
+════════════════════════════════ */
+.phero{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius);padding:28px;margin-bottom:18px;
+}
+.phero-top{display:flex;gap:20px;align-items:flex-start;margin-bottom:22px;}
+.p-logo{
+  width:72px;height:72px;border-radius:16px;
+  background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;flex-shrink:0;border:1px solid var(--border2);
+}
+.p-info{flex:1;}
+.p-name{
+  font-family:'Lora',serif;font-size:28px;margin-bottom:4px;
+}
+.p-tagline{font-size:13px;color:var(--text2);margin-bottom:12px;}
+.p-badges{display:flex;flex-wrap:wrap;gap:7px;}
+.pb{
+  font-size:9px;padding:3px 10px;border-radius:4px;
+  font-family:'DM Mono',monospace;letter-spacing:.06em;
+}
+.pb-gold{background:var(--gold-d);color:var(--gold);border:1px solid rgba(201,162,39,0.25);}
+.pb-teal{background:var(--teal-d);color:var(--teal);border:1px solid rgba(41,217,194,0.2);}
+.pb-out{background:var(--surface);color:var(--text3);border:1px solid var(--border);}
+.p-acts{display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
+
+.pstats-row{
+  display:grid;gap:1px;background:var(--border);
+  border-radius:var(--radius-sm);overflow:hidden;
+}
+.pstat{background:var(--surface);padding:14px;text-align:center;}
+.pstat-val{
+  font-family:'DM Mono',monospace;font-size:16px;
+  color:var(--gold);font-weight:500;display:block;
+}
+.pstat-lbl{font-size:9px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.07em;font-family:'DM Mono',monospace;}
+
+.pgrid{display:grid;grid-template-columns:1fr 320px;gap:18px;}
+.s-section-title{
+  font-family:'Lora',serif;font-style:italic;font-size:20px;
+  margin-bottom:12px;
+}
+.s-section-title em{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.desc-text{font-size:13px;color:var(--text2);line-height:1.85;margin-bottom:14px;}
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.team-card{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px;
+  display:flex;gap:10px;align-items:center;
+}
+.team-av{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,var(--violet),#A29BFE);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:12px;flex-shrink:0;
+}
+
+/* ════════════════════════════════
+   MEETINGS
+════════════════════════════════ */
+.mi{
+  display:flex;align-items:flex-start;gap:13px;
+  padding:13px 0;border-bottom:1px solid var(--border);
+}
+.mi:last-child{border-bottom:none;}
+.mi-date-block{text-align:center;min-width:44px;}
+.mi-day{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;}
+.mi-time{font-family:'DM Mono',monospace;font-size:13px;color:var(--gold);}
+.mi-icon-box{
+  width:36px;height:36px;border-radius:9px;
+  background:var(--surface2);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  margin-top:2px;
+}
+.mi-body{flex:1;min-width:0;}
+.mi-title{font-size:13px;font-weight:700;margin-bottom:2px;}
+.mi-meta{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;}
+.mi-acts{display:flex;gap:5px;margin-top:7px;}
+.mstatus{
+  font-size:9px;padding:3px 9px;border-radius:4px;
+  font-family:'DM Mono',monospace;letter-spacing:.06em;white-space:nowrap;
+  flex-shrink:0;margin-top:3px;
+}
+.ms-ok{background:var(--green-d);color:var(--green);border:1px solid rgba(41,201,138,0.2);}
+.ms-pending{background:var(--gold-d);color:var(--gold);border:1px solid rgba(201,162,39,0.2);}
+.ms-done{background:var(--surface);color:var(--text3);border:1px solid var(--border);}
+.ms-upcoming{background:var(--teal-d);color:var(--teal);border:1px solid rgba(41,217,194,0.2);}
+
+/* ════════════════════════════════
+   PIPELINE
+════════════════════════════════ */
+.pipeline-board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.pcol{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px;min-height:200px;
+  transition:border-color .2s;
+}
+.pcol.drag-over{border-color:var(--gold);background:var(--surface);}
+.pcol-head{
+  font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--text3);
+  margin-bottom:12px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:'DM Mono',monospace;
+}
+.pcol-cnt{
+  font-family:'DM Mono',monospace;
+  background:var(--surface);border-radius:4px;
+  padding:1px 8px;color:var(--text2);
+}
+.deal{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px;
+  margin-bottom:8px;cursor:grab;transition:all .15s;
+}
+.deal:hover{border-color:rgba(201,162,39,0.3);}
+.deal:active{cursor:grabbing;}
+.deal-name{font-size:12px;font-weight:700;margin-bottom:3px;}
+.deal-sec{font-size:11px;color:var(--text3);margin-bottom:6px;font-family:'DM Mono',monospace;}
+.deal-ask{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);}
+
+/* ════════════════════════════════
+   MESSAGES / CHAT
+════════════════════════════════ */
+.msg-shell{
+  display:grid;grid-template-columns:280px 1fr;
+  border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;height:560px;
+}
+.msg-sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;}
+.msg-sb-head{
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  font-size:10px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;
+  font-family:'DM Mono',monospace;
+}
+.msg-threads{flex:1;overflow-y:auto;padding:8px;}
+.thread-item{
+  display:flex;gap:10px;padding:10px 10px;
+  border-radius:var(--radius-sm);cursor:pointer;align-items:center;
+  transition:background .15s;border:1px solid transparent;
+}
+.thread-item:hover{background:var(--surface);}
+.thread-item.active{background:var(--gold-d);border-color:rgba(201,162,39,0.15);}
+.th-av{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--violet),#A29BFE);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:12px;
+}
+.th-meta{flex:1;min-width:0;}
+.th-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.th-preview{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'DM Mono',monospace;}
+.th-badge{
+  background:var(--red);color:#fff;
+  font-size:9px;padding:2px 6px;border-radius:100px;
+  flex-shrink:0;font-family:'DM Mono',monospace;
+}
+.msg-pane{display:flex;flex-direction:column;background:var(--bg3);}
+.msg-pane-head{
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.chat-messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px;}
+.chat-msg{display:flex;}
+.chat-msg.mine{justify-content:flex-end;}
+.bubble{
+  max-width:70%;border-radius:14px;padding:10px 14px;
+  font-size:13px;line-height:1.6;
+}
+.bubble.mine{
+  background:var(--gold-d);border:1px solid rgba(201,162,39,0.25);
+  border-bottom-right-radius:4px;
+}
+.bubble.theirs{
+  background:var(--surface2);border:1px solid var(--border);
+  border-bottom-left-radius:4px;
+}
+.bubble-time{font-size:9px;color:var(--text3);margin-top:3px;font-family:'DM Mono',monospace;}
+.msg-input-row{
+  padding:12px 16px;border-top:1px solid var(--border);
+  display:flex;gap:9px;
+}
+
+/* ════════════════════════════════
+   NOTIFICATIONS
+════════════════════════════════ */
+.notif-item{
+  display:flex;gap:12px;padding:14px 0;
+  border-bottom:1px solid var(--border);align-items:flex-start;
+}
+.notif-item:last-child{border-bottom:none;}
+.notif-ic{
+  width:36px;height:36px;border-radius:9px;
+  background:var(--gold-d);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
+}
+.notif-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--gold);margin-top:6px;flex-shrink:0;margin-left:auto;
+}
+.notif-time{font-size:10px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace;}
+
+/* ════════════════════════════════
+   PAYMENT / BILLING
+════════════════════════════════ */
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+.plan-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius);padding:26px;
+  transition:all .2s;position:relative;cursor:pointer;
+}
+.plan-card:hover{border-color:rgba(201,162,39,0.3);transform:translateY(-3px);}
+.plan-card.featured{
+  border-color:var(--gold);
+  box-shadow:0 0 40px rgba(201,162,39,0.12);
+  animation:glow 3s ease infinite;
+}
+.plan-badge{
+  position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#06080C;font-size:9px;font-weight:800;
+  padding:3px 14px;border-radius:100px;
+  letter-spacing:.1em;text-transform:uppercase;font-family:'DM Mono',monospace;
+}
+.plan-name{
+  font-family:'Lora',serif;font-size:20px;margin-bottom:4px;
+}
+.plan-price{
+  font-family:'Lora',serif;font-size:36px;margin:14px 0 4px;
+}
+.plan-price sup{font-size:18px;vertical-align:top;margin-top:8px;}
+.plan-price sub{font-size:12px;color:var(--text3);}
+.plan-features{list-style:none;margin-top:16px;}
+.plan-features li{
+  font-size:12px;color:var(--text2);padding:6px 0;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.plan-features li:last-child{border-bottom:none;}
+.plan-features li::before{content:'✓';color:var(--green);font-weight:800;font-size:11px;}
+
+.txn-table{width:100%;border-collapse:collapse;}
+.txn-table th{
+  font-size:9px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;
+  padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);
+  font-family:'DM Mono',monospace;font-weight:400;
+}
+.txn-table td{
+  font-size:12px;padding:12px 16px;
+  border-bottom:1px solid var(--border);
+}
+.txn-table tr:last-child td{border-bottom:none;}
+.txn-status{
+  display:inline-block;padding:2px 8px;border-radius:4px;
+  font-family:'DM Mono',monospace;font-size:10px;
+}
+.txn-paid{background:var(--green-d);color:var(--green);border:1px solid rgba(41,201,138,.2);}
+.txn-pending{background:var(--gold-d);color:var(--gold);border:1px solid rgba(201,162,39,.2);}
+
+/* ════════════════════════════════
+   PITCH UPLOAD (STARTUP)
+════════════════════════════════ */
+.pitch-drop{
+  border:2px dashed var(--border2);border-radius:var(--radius);
+  padding:48px;text-align:center;
+  transition:all .25s;cursor:pointer;
+  background:var(--surface);
+}
+.pitch-drop:hover,.pitch-drop.dragover{
+  border-color:var(--gold);background:var(--gold-d);
+}
+.pitch-drop-ic{font-size:48px;margin-bottom:14px;}
+.pitch-drop-txt{font-size:15px;font-weight:700;margin-bottom:6px;}
+.pitch-drop-sub{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;}
+
+.pitch-preview{
+  background:var(--bg3);border:1px solid var(--gold);
+  border-radius:var(--radius);padding:22px;
+  display:flex;align-items:center;gap:16px;
+  margin-top:18px;
+}
+.pitch-file-ic{font-size:36px;}
+.pitch-file-info{flex:1;}
+.pitch-file-name{font-size:14px;font-weight:700;margin-bottom:3px;}
+.pitch-file-meta{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;}
+.pitch-del{color:var(--red);cursor:pointer;font-size:18px;padding:4px 8px;}
+
+.metric-input-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+
+/* ════════════════════════════════
+   STARTUP DASHBOARD (founder view)
+════════════════════════════════ */
+.startup-hero{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--radius);padding:28px;
+  margin-bottom:20px;
+  background-image:radial-gradient(ellipse 60% 80% at 95% 50%, rgba(201,162,39,0.07), transparent);
+}
+.startup-hero-top{display:flex;align-items:center;gap:18px;margin-bottom:20px;}
+.startup-hero-logo{
+  width:64px;height:64px;border-radius:16px;
+  background:var(--surface2);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;font-size:32px;
+}
+.startup-hero-name{font-family:'Lora',serif;font-size:26px;margin-bottom:4px;}
+.startup-hero-tag{font-size:13px;color:var(--text2);}
+.funding-bar{
+  background:var(--surface);border-radius:100px;height:8px;
+  overflow:hidden;margin-top:12px;
+}
+.funding-fill{
+  height:100%;border-radius:100px;
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+  transition:width .8s cubic-bezier(.4,0,.2,1);
+}
+
+/* ════════════════════════════════
+   MISC UTILITIES
+════════════════════════════════ */
+.hidden{display:none!important;}
+.fb{display:flex;justify-content:space-between;align-items:center;}
+.chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:100px;
+  font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;
+}
+.text-gold{color:var(--gold);}
+.text-green{color:var(--green);}
+.text-red{color:var(--red);}
+.mt16{margin-top:16px;}
+.mt24{margin-top:24px;}
+.loading{
+  display:flex;align-items:center;justify-content:center;
+  padding:40px;color:var(--text3);font-size:12px;
+  font-family:'DM Mono',monospace;
+}
+.spinner{
+  width:16px;height:16px;border:2px solid var(--border2);
+  border-top-color:var(--gold);border-radius:50%;
+  animation:spin .7s linear infinite;margin-right:8px;
+}
+.skel{
+  background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;
+}
+.toggle{position:relative;display:inline-block;width:42px;height:23px;}
+.toggle input{opacity:0;width:0;height:0;}
+.tslider{
+  position:absolute;cursor:pointer;inset:0;
+  background:var(--surface2);border-radius:23px;
+  transition:.3s;border:1px solid var(--border2);
+}
+.tslider:before{
+  position:absolute;content:"";
+  height:15px;width:15px;left:3px;bottom:3px;
+  background:var(--text3);border-radius:50%;transition:.3s;
+}
+input:checked + .tslider{background:var(--gold-d);border-color:var(--gold);}
+input:checked + .tslider:before{transform:translateX(19px);background:var(--gold);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:4px;}
+
+/* ════════════════════════════════
+   RESPONSIVE
+════════════════════════════════ */
+@media(max-width:1100px){.metrics{grid-template-columns:repeat(2,1fr);}.pgrid{grid-template-columns:1fr;}.plan-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:860px){:root{--sidebar:220px;}.two-col{grid-template-columns:1fr;}.pipeline-board{grid-template-columns:repeat(2,1fr);}.plan-grid{grid-template-columns:1fr;}}
+@media(max-width:640px){.sidebar{display:none;}.content{padding:18px;}.metrics{grid-template-columns:1fr 1fr;}.sg{grid-template-columns:1fr;}.team-grid{grid-template-columns:1fr;}.msg-shell{grid-template-columns:1fr;}.plan-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- ██████ LANDING ██████ -->
+<div id="landing" class="page active">
+  <div class="grid-bg"></div>
+  <div class="land-badge"><span class="land-badge-dot"></span>The Venture Intelligence Platform</div>
+  <div class="land-wordmark">De<span>si</span>re</div>
+  <p class="land-sub">Where founders with vision meet capital with conviction. The platform built for modern venture funding relationships.</p>
+  <div class="land-actions">
+    <button class="btn-gold" onclick="openAuth('login')">Sign In</button>
+    <button class="btn-ghost" onclick="openAuth('register')">Create Account</button>
+  </div>
+  <div class="land-stats">
+    <div><span class="lstat-num">$2.4B</span><div class="lstat-lbl">Deployed Capital</div></div>
+    <div><span class="lstat-num">840+</span><div class="lstat-lbl">Startups Funded</div></div>
+    <div><span class="lstat-num">320</span><div class="lstat-lbl">Active Investors</div></div>
+    <div><span class="lstat-num">94%</span><div class="lstat-lbl">Match Success Rate</div></div>
+  </div>
+</div>
+
+<!-- ██████ AUTH MODAL ██████ -->
+<div class="overlay" id="authModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeAuth()">✕</button>
+    <div class="modal-wm">De<span>si</span>re</div>
+    <div class="modal-caption">Venture Funding Platform</div>
+    <div id="authErr" class="auth-err hidden"></div>
+    <div class="tab-toggle">
+      <button class="ttab active" id="loginTab" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="ttab" id="regTab" onclick="switchAuthTab('register')">Register</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginForm">
+      <div class="fg"><label class="flbl">Email</label><input type="email" class="finput" id="lEmail" placeholder="you@company.com"></div>
+      <div class="fg"><label class="flbl">Password</label><input type="password" class="finput" id="lPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn-full" id="loginBtn" onclick="doLogin()">Sign In to Desire</button>
+      <div class="auth-or">or try a demo account</div>
+      <div style="display:flex;gap:9px">
+        <button class="btn-outline-full" style="flex:1;font-size:12px" onclick="demoLogin('startup')">🚀 Startup Demo</button>
+        <button class="btn-outline-full" style="flex:1;font-size:12px" onclick="demoLogin('investor')">💼 Investor Demo</button>
+      </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="regForm" class="hidden">
+      <label class="flbl" style="margin-bottom:8px;display:block">I am joining as</label>
+      <div class="role-pick">
+        <div class="rcard sel" id="roleStartup" onclick="pickRole('startup')"><div class="ricon">🚀</div><div class="rlabel">Startup Founder</div></div>
+        <div class="rcard" id="roleInvestor" onclick="pickRole('investor')"><div class="ricon">💼</div><div class="rlabel">Investor / VC</div></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="flbl">First Name</label><input type="text" class="finput" id="rFirst" placeholder="Alex"></div>
+        <div class="fg"><label class="flbl">Last Name</label><input type="text" class="finput" id="rLast" placeholder="Johnson"></div>
+      </div>
+      <div class="fg"><label class="flbl">Email</label><input type="email" class="finput" id="rEmail" placeholder="you@company.com"></div>
+      <div class="fg"><label class="flbl" id="rCompanyLabel">Company / Startup</label><input type="text" class="finput" id="rCompany" placeholder="Acme Technologies"></div>
+      <div class="fg"><label class="flbl">Password</label><input type="password" class="finput" id="rPass" placeholder="Min 6 characters" onkeydown="if(event.key==='Enter')doRegister()"></div>
+      <button class="btn-full" id="regBtn" onclick="doRegister()">Join Desire</button>
+    </div>
+  </div>
+</div>
+
+<!-- ██████ DASHBOARD ██████ -->
+<div id="dashboard" class="page">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-head">
+      <div class="sb-wm">De<span>si</span>re</div>
+      <div class="sb-user-card">
+        <div class="sb-av" id="sbAv">A</div>
+        <div>
+          <div class="sb-uname" id="sbName">—</div>
+          <div class="sb-urole" id="sbRole">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="sb-nav" id="sideNav">
+      <!-- Dynamically populated based on role -->
+    </div>
+    <div class="sb-bottom">
+      <button class="navbtn" onclick="doLogout()" style="color:var(--red)">
+        <span class="navbtn-ic">⇤</span>Sign Out
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN AREA -->
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-title" id="tbTitle">Dashboard</div>
+      <div class="tb-srch-wrap">
+        <span class="tb-srch-ic">⌕</span>
+        <input class="tb-srch" id="gSearch" placeholder="Search startups, investors…" oninput="onSearch(this.value)">
+      </div>
+      <div class="role-pill" id="rolePill">—</div>
+      <button class="tb-ic-btn" onclick="nav('meetings')" title="Meetings">📅<span class="tb-dot hidden" id="meetDot"></span></button>
+      <button class="tb-ic-btn" onclick="nav('notifications')" title="Notifications">🔔<span class="tb-dot hidden" id="notifDot"></span></button>
+    </div>
+
+    <!-- ═══ SECTIONS ═══ -->
+
+    <!-- INVESTOR: DASHBOARD HOME -->
+    <div id="sec-home" class="content hidden">
+      <div class="ph fb">
+        <div>
+          <div class="ph-title">Good morning, <em id="wName">—</em> 👋</div>
+          <div class="ph-sub" id="wDesc">Here's your investment activity overview.</div>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="mc"><div class="mc-icon">💰</div><div class="mc-val" id="m1">—</div><div class="mc-lbl" id="m1l">AUM Deployed</div><div class="mc-delta">↑ 18% QoQ</div></div>
+        <div class="mc"><div class="mc-icon">📊</div><div class="mc-val" id="m2">—</div><div class="mc-lbl" id="m2l">Portfolio Companies</div><div class="mc-delta">↑ 3 this quarter</div></div>
+        <div class="mc"><div class="mc-icon">📅</div><div class="mc-val" id="m3">—</div><div class="mc-lbl">Upcoming Meetings</div><div class="mc-delta">This week</div></div>
+        <div class="mc"><div class="mc-icon">⭐</div><div class="mc-val" id="m4">0</div><div class="mc-lbl">Saved Startups</div><div class="mc-delta">Your watchlist</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><span class="card-title">📅 Upcoming Meetings</span><button class="card-action" onclick="nav('meetings')">View all →</button></div>
+          <div class="card-body" id="dashMeet"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">🔥 Hot Startups</span><button class="card-action" onclick="nav('discover')">Discover →</button></div>
+          <div class="card-body" id="dashHot"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">🔔 Recent Activity</span><button class="card-action" onclick="nav('notifications')">All →</button></div>
+        <div class="card-body" id="dashNotifs"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- INVESTOR: DISCOVER -->
+    <div id="sec-discover" class="content hidden">
+      <div class="ph">
+        <div class="ph-title">Discover <em>Startups</em></div>
+        <div class="ph-sub">Explore high-potential startups seeking funding</div>
+      </div>
+      <div id="discFilters" style="display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap">
+        <button class="btn-sm active" onclick="filterSector('',this)">All Sectors</button>
+        <button class="btn-sm" onclick="filterSector('AI',this)">🤖 AI / ML</button>
+        <button class="btn-sm" onclick="filterSector('HealthTech',this)">🏥 HealthTech</button>
+        <button class="btn-sm" onclick="filterSector('CleanTech',this)">🌱 CleanTech</button>
+        <button class="btn-sm" onclick="filterSector('FinTech',this)">💳 FinTech</button>
+        <button class="btn-sm" onclick="filterSector('E-Commerce',this)">🛒 E-Commerce</button>
+        <button class="btn-sm" onclick="filterSector('Cybersecurity',this)">🔒 Cybersecurity</button>
+      </div>
+      <div id="sgrid" class="sg"><div class="loading"><div class="spinner"></div>Loading startups…</div></div>
+    </div>
+
+    <!-- STARTUP PROFILE DETAIL -->
+    <div id="sec-startupProfile" class="content hidden"></div>
+
+    <!-- MEETINGS (BOTH ROLES) -->
+    <div id="sec-meetings" class="content hidden">
+      <div class="ph fb">
+        <div>
+          <div class="ph-title">📅 <em>Meetings</em></div>
+          <div class="ph-sub">Schedule and manage investor-founder sessions</div>
+        </div>
+        <button class="btn-gold" onclick="openSchedModal()">+ Schedule Meeting</button>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Upcoming</span><span class="chip" id="upcomingCnt">0 scheduled</span></div>
+          <div class="card-body" id="meetUpcoming"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Past Meetings</span></div>
+          <div class="card-body" id="meetPast"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVESTOR: PIPELINE -->
+    <div id="sec-pipeline" class="content hidden">
+      <div class="ph fb">
+        <div>
+          <div class="ph-title">Deal <em>Pipeline</em></div>
+          <div class="ph-sub">Track funding deals from outreach to close</div>
+        </div>
+        <button class="btn-gold" onclick="openAddDeal()">+ Add Deal</button>
+      </div>
+      <div class="pipeline-board" id="pBoard"></div>
+    </div>
+
+    <!-- MESSAGES (BOTH ROLES) -->
+    <div id="sec-messages" class="content hidden">
+      <div class="ph">
+        <div class="ph-title">💬 <em>Messages</em></div>
+        <div class="ph-sub">Chat directly with investors and founders</div>
+      </div>
+      <div class="msg-shell">
+        <div class="msg-sidebar">
+          <div class="msg-sb-head">Conversations</div>
+          <div class="msg-threads" id="thrList">
+            <div class="loading" style="padding:20px"><div class="spinner"></div>Loading…</div>
+          </div>
+        </div>
+        <div class="msg-pane" id="chatPane">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--text3)">
+            <div style="font-size:36px">💬</div>
+            <div style="font-size:13px;font-family:'DM Mono',monospace">Select a conversation to start chatting</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVESTOR: PAYMENT / BILLING -->
+    <div id="sec-payment" class="content hidden">
+      <div class="ph">
+        <div class="ph-title">💳 <em>Billing</em> &amp; Plans</div>
+        <div class="ph-sub">Manage your subscription and transaction history</div>
+      </div>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-name" style="color:var(--text2)">Scout</div>
+          <div class="plan-price"><sup>$</sup>0<sub>/mo</sub></div>
+          <ul class="plan-features">
+            <li>Browse 10 startups/mo</li>
+            <li>5 meeting requests</li>
+            <li>Basic messaging</li>
+            <li>No pipeline tracking</li>
+          </ul>
+          <button class="btn-outline-full" style="margin-top:18px">Current Plan</button>
+        </div>
+        <div class="plan-card featured">
+          <div class="plan-badge">Most Popular</div>
+          <div class="plan-name" style="color:var(--gold)">Partner</div>
+          <div class="plan-price" style="color:var(--gold)"><sup>$</sup>199<sub>/mo</sub></div>
+          <ul class="plan-features">
+            <li>Unlimited startup discovery</li>
+            <li>Unlimited meetings</li>
+            <li>Full messaging & chat</li>
+            <li>Deal pipeline (50 deals)</li>
+            <li>Advanced analytics</li>
+          </ul>
+          <button class="btn-full" style="margin-top:18px" onclick="subscribePlan('partner')">Upgrade to Partner</button>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">Apex</div>
+          <div class="plan-price"><sup>$</sup>599<sub>/mo</sub></div>
+          <ul class="plan-features">
+            <li>Everything in Partner</li>
+            <li>Unlimited pipeline deals</li>
+            <li>Priority matching AI</li>
+            <li>Dedicated deal analyst</li>
+            <li>White-glove onboarding</li>
+          </ul>
+          <button class="btn-full" style="margin-top:18px;background:var(--surface2);color:var(--text)" onclick="subscribePlan('apex')">Contact Sales</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Transaction History</span></div>
+        <div class="card-body" style="padding:0">
+          <table class="txn-table" id="txnTable">
+            <thead>
+              <tr>
+                <th>Date</th><th>Description</th><th>Amount</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="txnBody">
+              <tr><td colspan="4" style="text-align:center;color:var(--text3);padding:24px;font-family:'DM Mono',monospace;font-size:12px">No transactions yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- STARTUP: FOUNDER DASHBOARD -->
+    <div id="sec-founderHome" class="content hidden">
+      <div class="ph">
+        <div class="ph-title">Welcome back, <em id="fwName">—</em> 🚀</div>
+        <div class="ph-sub">Here's your startup's funding journey at a glance.</div>
+      </div>
+      <div class="startup-hero">
+        <div class="startup-hero-top">
+          <div class="startup-hero-logo" id="shLogo">🚀</div>
+          <div style="flex:1">
+            <div class="startup-hero-name" id="shName">Your Startup</div>
+            <div class="startup-hero-tag" id="shTag">Complete your profile to get discovered</div>
+            <div class="p-badges" style="margin-top:8px">
+              <span class="pb pb-gold" id="shStage">SEED</span>
+              <span class="pb pb-out" id="shSector">—</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn-sm active" onclick="nav('pitchUpload')">📁 Upload Pitch</button>
+            <button class="btn-sm" onclick="nav('myStartup')">✏️ Edit Profile</button>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:6px">
+          FUNDING PROGRESS — <span id="shAsk">$0</span> GOAL
+        </div>
+        <div class="funding-bar"><div class="funding-fill" id="fundingFill" style="width:32%"></div></div>
+      </div>
+      <div class="metrics">
+        <div class="mc"><div class="mc-icon">👁️</div><div class="mc-val" id="fm1">142</div><div class="mc-lbl">Profile Views</div><div class="mc-delta">↑ 23% this week</div></div>
+        <div class="mc"><div class="mc-icon">🤝</div><div class="mc-val" id="fm2">18</div><div class="mc-lbl">Investor Connections</div><div class="mc-delta">↑ 4 new</div></div>
+        <div class="mc"><div class="mc-icon">📅</div><div class="mc-val" id="fm3">—</div><div class="mc-lbl">Meetings Scheduled</div><div class="mc-delta">This month</div></div>
+        <div class="mc"><div class="mc-icon">💾</div><div class="mc-val" id="fm4">47</div><div class="mc-lbl">Investor Saves</div><div class="mc-delta">↑ 12 this week</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><span class="card-title">📅 Upcoming Meetings</span><button class="card-action" onclick="nav('meetings')">View all →</button></div>
+          <div class="card-body" id="fDashMeet"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">🔔 Latest Activity</span><button class="card-action" onclick="nav('notifications')">See all →</button></div>
+          <div class="card-body" id="fDashNotifs"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STARTUP: PITCH UPLOAD -->
+    <div id="sec-pitchUpload" class="content hidden">
+      <div class="ph">
+        <div class="ph-title">📁 Pitch <em>Upload</em></div>
+        <div class="ph-sub">Upload your deck, video, or one-pager to attract investors</div>
+      </div>
+      <div class="two-col">
+        <div>
+          <div class="card" style="margin-bottom:18px">
+            <div class="card-head"><span class="card-title">Pitch Deck</span></div>
+            <div class="card-body">
+              <div class="pitch-drop" id="pitchDropZone" onclick="document.getElementById('pitchFile').click()"
+                ondragover="event.preventDefault();this.classList.add('dragover')"
+                ondragleave="this.classList.remove('dragover')"
+                ondrop="handlePitchDrop(event)">
+                <div class="pitch-drop-ic">📑</div>
+                <div class="pitch-drop-txt">Drop your pitch deck here</div>
+                <div class="pitch-drop-sub">PDF, PPT, PPTX · Max 50MB</div>
+              </div>
+              <input type="file" id="pitchFile" style="display:none" accept=".pdf,.ppt,.pptx" onchange="handlePitchFile(this)">
+              <div id="pitchPreview"></div>
+              <div id="pitchProgress" class="hidden" style="margin-top:14px">
+                <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-family:'DM Mono',monospace">UPLOADING…</div>
+                <div style="background:var(--surface);border-radius:100px;height:4px;overflow:hidden">
+                  <div id="pitchBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .3s;border-radius:100px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Video Pitch</span></div>
+            <div class="card-body">
+              <div class="fg"><label class="flbl">YouTube / Loom URL</label><input class="finput" id="videoUrl" placeholder="https://youtu.be/..."></div>
+              <div class="fg"><label class="flbl">Video Title</label><input class="finput" id="videoTitle" placeholder="2-minute Founder Intro"></div>
+              <button class="btn-full" onclick="saveVideo()">Save Video Link</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:18px">
+            <div class="card-head"><span class="card-title">Key Metrics</span><span class="chip">Shown to investors</span></div>
+            <div class="card-body">
+              <div class="metric-input-grid">
+                <div class="fg"><label class="flbl">ARR / MRR</label><input class="finput" id="mARR" placeholder="$500K ARR"></div>
+                <div class="fg"><label class="flbl">Growth Rate</label><input class="finput" id="mGrowth" placeholder="3.2×"></div>
+                <div class="fg"><label class="flbl">Asking</label><input class="finput" id="mAsk" placeholder="$5M"></div>
+              </div>
+              <div class="fg"><label class="flbl">Stage</label>
+                <select class="finput" id="mStage">
+                  <option>PRE-SEED</option><option>SEED</option><option>SERIES A</option><option>SERIES B</option><option>SERIES C+</option>
+                </select>
+              </div>
+              <div class="fg"><label class="flbl">Elevator Pitch (1 sentence)</label><textarea class="finput" rows="3" id="mPitch" style="resize:none" placeholder="We help X do Y by Z, resulting in W…"></textarea></div>
+              <button class="btn-full" onclick="saveMetrics()">Update Metrics</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Uploaded Materials</span></div>
+            <div class="card-body" id="uploadedList">
+              <div style="text-align:center;padding:20px;color:var(--text3);font-size:12px;font-family:'DM Mono',monospace">No materials uploaded yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STARTUP: MY STARTUP PROFILE EDITOR -->
+    <div id="sec-myStartup" class="content hidden">
+      <div class="ph">
+        <div class="ph-title">🚀 My <em>Startup</em></div>
+        <div class="ph-sub">Update your startup profile for investors to discover</div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Startup Details</span></div>
+          <div class="card-body">
+            <div class="frow">
+              <div class="fg"><label class="flbl">Startup Name</label><input class="finput" id="stName" placeholder="NeuralNest AI"></div>
+              <div class="fg"><label class="flbl">Emoji / Icon</label><input class="finput" id="stEmoji" placeholder="🚀" maxlength="2"></div>
+            </div>
+            <div class="fg"><label class="flbl">Tagline</label><input class="finput" id="stTag" placeholder="One powerful sentence about your startup"></div>
+            <div class="fg"><label class="flbl">Description</label><textarea class="finput" id="stDesc" rows="4" style="resize:none" placeholder="Tell investors your story…"></textarea></div>
+            <div class="frow">
+              <div class="fg"><label class="flbl">Sector</label><input class="finput" id="stSector" placeholder="AI/ML · SaaS"></div>
+              <div class="fg"><label class="flbl">Stage</label>
+                <select class="finput" id="stStage"><option>PRE-SEED</option><option>SEED</option><option>SERIES A</option><option>SERIES B</option></select>
+              </div>
+            </div>
+            <div class="frow">
+              <div class="fg"><label class="flbl">Location</label><input class="finput" id="stLoc" placeholder="Bangalore, IN"></div>
+              <div class="fg"><label class="flbl">Founded Year</label><input class="finput" id="stFounded" placeholder="2023"></div>
+            </div>
+            <div class="fg"><label class="flbl">Website</label><input class="finput" id="stWeb" placeholder="https://yourstartup.com"></div>
+            <button class="btn-full" onclick="saveStartupProfile()">Save Startup Profile</button>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:18px">
+            <div class="card-head"><span class="card-title">Funding Metrics</span></div>
+            <div class="card-body">
+              <div class="fg"><label class="flbl">Funding Ask</label><input class="finput" id="stAsk" placeholder="$5M"></div>
+              <div class="fg"><label class="flbl">Current ARR</label><input class="finput" id="stARR" placeholder="$500K ARR"></div>
+              <div class="fg"><label class="flbl">Growth Rate</label><input class="finput" id="stGrowth" placeholder="3.2× YoY"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Team Members</span></div>
+            <div class="card-body">
+              <div id="teamList"></div>
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <input class="finput" id="tmName" placeholder="Name & Role (e.g. Alex Johnson · CEO)" style="flex:1">
+                <button class="btn-sm active" onclick="addTeamMember()">+ Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STARTUP: PAYMENT -->
+    <div id="sec-spayment" class="content hidden">
+      <div class="ph">
+        <div class="ph-title">💳 <em>Billing</em> &amp; Plans</div>
+        <div class="ph-sub">Manage your startup's subscription</div>
+      </div>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-name" style="color:var(--text2)">Basic</div>
+          <div class="plan-price"><sup>$</sup>0<sub>/mo</sub></div>
+          <ul class="plan-features">
+            <li>Basic startup profile</li>
+            <li>3 investor meetings/mo</li>
+            <li>1 pitch upload</li>
+            <li>Limited messaging</li>
+          </ul>
+          <button class="btn-outline-full" style="margin-top:18px">Current Plan</button>
+        </div>
+        <div class="plan-card featured">
+          <div class="plan-badge">Most Popular</div>
+          <div class="plan-name" style="color:var(--gold)">Growth</div>
+          <div class="plan-price" style="color:var(--gold)"><sup>$</sup>79<sub>/mo</sub></div>
+          <ul class="plan-features">
+            <li>Featured startup listing</li>
+            <li>Unlimited meetings</li>
+            <li>5 pitch materials</li>
+            <li>Full messaging</li>
+            <li>Investor match insights</li>
+          </ul>
+          <button class="btn-full" style="margin-top:18px" onclick="subscribePlan('growth')">Upgrade to Growth</button>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">Scale</div>
+          <div class="plan-price"><sup>$</sup>199<sub>/mo</sub></div>
+          <ul class="plan-features">
+            <li>Everything in Growth</li>
+            <li>Priority investor matching</li>
+            <li>Unlimited pitch uploads</li>
+            <li>Dedicated success manager</li>
+            <li>Custom data room</li>
+          </ul>
+          <button class="btn-full" style="margin-top:18px;background:var(--surface2);color:var(--text)" onclick="subscribePlan('scale')">Get Scale</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Billing History</span></div>
+        <div class="card-body" style="padding:0">
+          <table class="txn-table">
+            <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td colspan="4" style="text-align:center;color:var(--text3);padding:24px;font-size:12px;font-family:'DM Mono',monospace">No transactions yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE (BOTH) -->
+    <div id="sec-myProfile" class="content hidden">
+      <div class="ph"><div class="ph-title">◉ My <em>Profile</em></div><div class="ph-sub">Manage your personal information</div></div>
+      <div id="myProfCont"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+    </div>
+
+    <!-- NOTIFICATIONS (BOTH) -->
+    <div id="sec-notifications" class="content hidden">
+      <div class="ph fb">
+        <div><div class="ph-title">🔔 <em>Notifications</em></div><div class="ph-sub">Stay updated on all platform activity</div></div>
+        <button class="btn-sm" onclick="markAllRead()">Mark all read</button>
+      </div>
+      <div class="card">
+        <div class="card-body" id="notifList"><div class="loading"><div class="spinner"></div>Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS (BOTH) -->
+    <div id="sec-settings" class="content hidden">
+      <div class="ph"><div class="ph-title">⚙ <em>Settings</em></div><div class="ph-sub">Customize your account and preferences</div></div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Account Information</span></div>
+          <div class="card-body">
+            <div class="frow">
+              <div class="fg"><label class="flbl">First Name</label><input class="finput" id="setFirst"></div>
+              <div class="fg"><label class="flbl">Last Name</label><input class="finput" id="setLast"></div>
+            </div>
+            <div class="fg"><label class="flbl">Email</label><input class="finput" id="setEmail" disabled style="opacity:.5"></div>
+            <div class="fg"><label class="flbl">Company</label><input class="finput" id="setCompany"></div>
+            <div class="fg"><label class="flbl">Location</label><input class="finput" id="setLocation" placeholder="Bangalore, IN"></div>
+            <div class="fg"><label class="flbl">Bio</label><textarea class="finput" id="setBio" rows="3" style="resize:none"></textarea></div>
+            <button class="btn-full" onclick="saveSettings()">Save Changes</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Notification Preferences</span></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
+            <div class="fb"><span style="font-size:13px">New messages</span><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+            <div class="fb"><span style="font-size:13px">Meeting requests</span><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+            <div class="fb"><span style="font-size:13px">Profile views</span><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+            <div class="fb"><span style="font-size:13px">Deal updates</span><label class="toggle"><input type="checkbox"><span class="tslider"></span></label></div>
+            <div class="fb"><span style="font-size:13px">Weekly digest email</span><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+          </div>
+          <div class="card-head" style="margin-top:18px"><span class="card-title">Privacy</span></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
+            <div class="fb"><span style="font-size:13px">Show profile to investors</span><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+            <div class="fb"><span style="font-size:13px">Show in search results</span><label class="toggle"><input type="checkbox" checked><span class="tslider"></span></label></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /dashboard -->
+
+<!-- ██████ MODALS ██████ -->
+
+<!-- SCHEDULE MEETING -->
+<div class="overlay" id="schedModal">
+  <div class="modal" style="max-width:440px">
+    <button class="modal-x" onclick="closeSchedModal()">✕</button>
+    <div style="font-family:'Lora',serif;font-style:italic;font-size:24px;margin-bottom:4px">📅 Schedule Meeting</div>
+    <div class="modal-caption" id="meetWithCaption">New Meeting Request</div>
+    <div class="fg"><label class="flbl">With (Company / Person)</label><input class="finput" id="meetCo" placeholder="e.g. Sequoia Capital"></div>
+    <div class="fg"><label class="flbl">Meeting Type</label>
+      <select class="finput" id="meetType">
+        <option>📹 Video Call</option>
+        <option>☕ Coffee Chat</option>
+        <option>🏢 Office Visit</option>
+        <option>🎯 Pitch Demo</option>
+        <option>🤝 Due Diligence</option>
+      </select>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="flbl">Date</label><input type="date" class="finput" id="meetDate"></div>
+      <div class="fg"><label class="flbl">Time</label><input type="time" class="finput" id="meetTime" value="14:00"></div>
+    </div>
+    <div class="fg"><label class="flbl">Duration</label>
+      <select class="finput" id="meetDur">
+        <option>30 minutes</option><option selected>45 minutes</option><option>60 minutes</option><option>90 minutes</option>
+      </select>
+    </div>
+    <div class="fg"><label class="flbl">Context / Message</label><textarea class="finput" id="meetMsg" rows="3" style="resize:none" placeholder="Brief context for the meeting…"></textarea></div>
+    <button class="btn-full" onclick="confirmMeeting()">Send Meeting Request</button>
+  </div>
+</div>
+
+<!-- ADD DEAL (INVESTOR) -->
+<div class="overlay" id="addDealModal">
+  <div class="modal" style="max-width:400px">
+    <button class="modal-x" onclick="closeAddDeal()">✕</button>
+    <div style="font-family:'Lora',serif;font-size:24px;margin-bottom:20px">+ Add Deal</div>
+    <div class="fg"><label class="flbl">Company Name</label><input class="finput" id="dealName" placeholder="Startup name"></div>
+    <div class="fg"><label class="flbl">Sector</label><input class="finput" id="dealSec" placeholder="AI/ML · SaaS"></div>
+    <div class="fg"><label class="flbl">Ask Amount</label><input class="finput" id="dealAsk" placeholder="$5M"></div>
+    <div class="fg"><label class="flbl">Stage</label>
+      <select class="finput" id="dealStage">
+        <option>Prospect</option><option>In Review</option><option>Due Diligence</option><option>Term Sheet</option>
+      </select>
+    </div>
+    <button class="btn-full" onclick="confirmAddDeal()">Add to Pipeline</button>
+  </div>
+</div>
+
+<!-- PAYMENT CONFIRM -->
+<div class="overlay" id="payModal">
+  <div class="modal" style="max-width:400px">
+    <button class="modal-x" onclick="closePayModal()">✕</button>
+    <div style="font-family:'Lora',serif;font-size:24px;margin-bottom:4px">💳 Upgrade Plan</div>
+    <div class="modal-caption" id="payCaption">Plan upgrade</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:20px">
+      <div class="fb" style="margin-bottom:8px"><span style="font-size:13px">Plan</span><span class="text-gold" style="font-weight:700" id="payPlanName">—</span></div>
+      <div class="fb" style="margin-bottom:8px"><span style="font-size:13px">Billing</span><span style="font-family:'DM Mono',monospace;font-size:12px">Monthly</span></div>
+      <div class="fb"><span style="font-size:13px">Total</span><span class="text-gold" style="font-size:18px;font-weight:700" id="payAmount">—</span></div>
+    </div>
+    <div class="fg"><label class="flbl">Card Number</label><input class="finput" id="payCard" placeholder="4242 4242 4242 4242" maxlength="19" oninput="formatCard(this)"></div>
+    <div class="frow">
+      <div class="fg"><label class="flbl">Expiry</label><input class="finput" id="payExp" placeholder="MM/YY" maxlength="5"></div>
+      <div class="fg"><label class="flbl">CVC</label><input class="finput" id="payCvc" placeholder="123" maxlength="3"></div>
+    </div>
+    <button class="btn-full" id="payBtn" onclick="confirmPayment()">Complete Payment</button>
+    <div style="text-align:center;margin-top:10px;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">🔒 Secured · Demo only — no real charges</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" style="
+  position:fixed;bottom:24px;right:24px;
+  background:var(--surface2);
+  border:1px solid rgba(201,162,39,0.25);
+  color:var(--text);padding:12px 18px;
+  border-radius:var(--radius-sm);font-size:12px;
+  z-index:9500;transform:translateY(80px);opacity:0;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  max-width:320px;box-shadow:0 12px 32px rgba(0,0,0,.6);
+  display:flex;align-items:center;gap:9px;
+  font-family:'DM Mono',monospace;
+"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DESIRE PLATFORM — UPGRADED V2
+   Role-based UIs: Investor (full suite) | Startup Founder
+   ═══════════════════════════════════════════════════════════════ */
+
+const API = '';
+let TOKEN = localStorage.getItem('desire_token') || null;
+let ME = null;
+let curSec = '';
+let savedIds = new Set();
+let pipeData = [];
+let discSector = '';
+let activeThr = null;
+let activeThrName = '';
+let searchTmr = null;
+let teamMembers = [];
+let currentPlan = null;
+let uploadedFiles = [];
+
+/* ─── HTTP HELPERS ─────────────────────────────── */
+async function req(method, path, body) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (TOKEN) headers['Authorization'] = `Bearer ${TOKEN}`;
+  const opts = { method, headers };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+const GET  = p     => req('GET',    p);
+const POST = (p,b) => req('POST',   p, b);
+const PUT  = (p,b) => req('PUT',    p, b);
+const DEL  = p     => req('DELETE', p);
+
+/* ─── AUTH ──────────────────────────────────────── */
+function openAuth(tab) {
+  document.getElementById('authModal').classList.add('open');
+  switchAuthTab(tab);
+  document.getElementById('authErr').classList.add('hidden');
+}
+function closeAuth() { document.getElementById('authModal').classList.remove('open'); }
+
+function switchAuthTab(tab) {
+  document.getElementById('loginTab').classList.toggle('active', tab==='login');
+  document.getElementById('regTab').classList.toggle('active', tab==='register');
+  document.getElementById('loginForm').classList.toggle('hidden', tab!=='login');
+  document.getElementById('regForm').classList.toggle('hidden', tab!=='register');
+}
+
+let selRole = 'startup';
+function pickRole(r) {
+  selRole = r;
+  document.getElementById('roleStartup').classList.toggle('sel', r==='startup');
+  document.getElementById('roleInvestor').classList.toggle('sel', r==='investor');
+  // FIX: update company label and placeholder to match the chosen role
+  const lbl = document.getElementById('rCompanyLabel');
+  const inp = document.getElementById('rCompany');
+  if (r === 'investor') {
+    lbl.textContent    = 'Firm / Fund Name';
+    inp.placeholder    = 'e.g. Sequoia Capital';
+  } else {
+    lbl.textContent    = 'Company / Startup';
+    inp.placeholder    = 'Acme Technologies';
+  }
+}
+
+function showAuthErr(msg) {
+  const el = document.getElementById('authErr');
+  el.textContent = msg; el.classList.remove('hidden');
+}
+
+function setBtnLoad(id, loading, label) {
+  const b = document.getElementById(id);
+  if (!b) return;
+  b.disabled = loading;
+  b.textContent = loading ? 'Please wait…' : label;
+}
+
+async function doLogin() {
+  const email = document.getElementById('lEmail').value.trim();
+  const pass  = document.getElementById('lPass').value;
+  if (!email || !pass) { showAuthErr('Please fill in all fields'); return; }
+  setBtnLoad('loginBtn', true, 'Sign In to Desire');
+  try {
+    const d = await POST('/api/auth/login', { email, password: pass });
+    TOKEN = d.data.token;
+    localStorage.setItem('desire_token', TOKEN);
+    ME = d.data.user;
+    closeAuth();
+    launchDash();
+  } catch(e) { showAuthErr(e.message); }
+  finally { setBtnLoad('loginBtn', false, 'Sign In to Desire'); }
+}
+
+async function doRegister() {
+  const first = document.getElementById('rFirst').value.trim();
+  const last  = document.getElementById('rLast').value.trim();
+  const email = document.getElementById('rEmail').value.trim();
+  const comp  = document.getElementById('rCompany').value.trim();
+  const pass  = document.getElementById('rPass').value;
+  if (!first || !last || !email || !pass) { showAuthErr('Please fill in all fields'); return; }
+  if (pass.length < 6) { showAuthErr('Password must be at least 6 characters'); return; }
+  setBtnLoad('regBtn', true, 'Join Desire');
+  try {
+    const d = await POST('/api/auth/register', { first_name:first, last_name:last, email, password:pass, role:selRole, company:comp });
+    TOKEN = d.data.token;
+    localStorage.setItem('desire_token', TOKEN);
+    ME = d.data.user;
+    closeAuth();
+    launchDash();
+  } catch(e) { showAuthErr(e.message); }
+  finally { setBtnLoad('regBtn', false, 'Join Desire'); }
+}
+
+async function demoLogin(role) {
+  try {
+    const d = await POST('/api/auth/demo', { role });
+    TOKEN = d.data.token;
+    localStorage.setItem('desire_token', TOKEN);
+    ME = d.data.user;
+    closeAuth();
+    launchDash();
+  } catch(e) { showAuthErr(e.message); }
+}
+
+function doLogout() {
+  TOKEN = null; ME = null;
+  localStorage.removeItem('desire_token');
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('landing').classList.add('active');
+  showToast('👋 Signed out successfully');
+}
+
+/* ─── LAUNCH DASHBOARD ──────────────────────────── */
+function launchDash() {
+  document.getElementById('landing').classList.remove('active');
+  document.getElementById('dashboard').classList.add('active');
+  populateSidebar();
+  buildSideNav();
+  const homeSection = ME.role === 'investor' ? 'home' : 'founderHome';
+  nav(homeSection);
+  loadNotifBadge();
+  loadMeetBadge();
+  if (ME.role === 'investor') {
+    loadDashInvestor();
+    loadSaved();
+  } else {
+    loadDashFounder();
+    loadMyStartupData();
+  }
+  showToast(`👋 Welcome back, ${ME.first_name}!`);
+}
+
+function populateSidebar() {
+  const init = (ME.first_name[0] + (ME.last_name[0]||'')).toUpperCase();
+  document.getElementById('sbAv').textContent   = init;
+  document.getElementById('sbName').textContent = `${ME.first_name} ${ME.last_name}`;
+  document.getElementById('sbRole').textContent = ME.role === 'investor' ? 'Investor / VC' : 'Startup Founder';
+  document.getElementById('rolePill').textContent = ME.role === 'investor' ? '💼 Investor' : '🚀 Founder';
+  document.getElementById('wName').textContent  = ME.first_name;
+  document.getElementById('fwName').textContent = ME.first_name;
+  document.getElementById('setFirst').value     = ME.first_name;
+  document.getElementById('setLast').value      = ME.last_name;
+  document.getElementById('setEmail').value     = ME.email;
+  document.getElementById('setCompany').value   = ME.company || '';
+  document.getElementById('setLocation').value  = ME.location || '';
+  document.getElementById('setBio').value       = ME.bio || '';
+}
+
+function buildSideNav() {
+  const nav = document.getElementById('sideNav');
+  if (ME.role === 'investor') {
+    nav.innerHTML = `
+      <div class="nav-section">
+        <div class="nav-sec-title">Overview</div>
+        <button class="navbtn" data-sec="home" onclick="nav('home')"><span class="navbtn-ic">⬡</span>Dashboard</button>
+        <button class="navbtn" data-sec="discover" onclick="nav('discover')"><span class="navbtn-ic">◈</span>Discover Startups</button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-title">Activity</div>
+        <button class="navbtn" data-sec="meetings" onclick="nav('meetings')"><span class="navbtn-ic">📅</span>Meetings<span class="nav-badge hidden" id="meetBadge">0</span></button>
+        <button class="navbtn" data-sec="pipeline" onclick="nav('pipeline')"><span class="navbtn-ic">◫</span>Deal Pipeline</button>
+        <button class="navbtn" data-sec="messages" onclick="nav('messages')"><span class="navbtn-ic">💬</span>Messages<span class="nav-badge hidden" id="msgBadge">0</span></button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-title">Account</div>
+        <button class="navbtn" data-sec="payment" onclick="nav('payment')"><span class="navbtn-ic">💳</span>Billing &amp; Plans</button>
+        <button class="navbtn" data-sec="myProfile" onclick="nav('myProfile')"><span class="navbtn-ic">◉</span>My Profile</button>
+        <button class="navbtn" data-sec="notifications" onclick="nav('notifications')"><span class="navbtn-ic">🔔</span>Notifications<span class="nav-badge hidden" id="notifBadge">0</span></button>
+        <button class="navbtn" data-sec="settings" onclick="nav('settings')"><span class="navbtn-ic">⚙</span>Settings</button>
+      </div>`;
+  } else {
+    nav.innerHTML = `
+      <div class="nav-section">
+        <div class="nav-sec-title">My Startup</div>
+        <button class="navbtn" data-sec="founderHome" onclick="nav('founderHome')"><span class="navbtn-ic">⬡</span>Dashboard</button>
+        <button class="navbtn" data-sec="myStartup" onclick="nav('myStartup')"><span class="navbtn-ic">🚀</span>Startup Profile</button>
+        <button class="navbtn" data-sec="pitchUpload" onclick="nav('pitchUpload')"><span class="navbtn-ic">📁</span>Pitch &amp; Materials</button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-title">Investors</div>
+        <button class="navbtn" data-sec="meetings" onclick="nav('meetings')"><span class="navbtn-ic">📅</span>Meetings<span class="nav-badge hidden" id="meetBadge">0</span></button>
+        <button class="navbtn" data-sec="messages" onclick="nav('messages')"><span class="navbtn-ic">💬</span>Messages<span class="nav-badge hidden" id="msgBadge">0</span></button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-sec-title">Account</div>
+        <button class="navbtn" data-sec="spayment" onclick="nav('spayment')"><span class="navbtn-ic">💳</span>Billing &amp; Plans</button>
+        <button class="navbtn" data-sec="myProfile" onclick="nav('myProfile')"><span class="navbtn-ic">◉</span>My Profile</button>
+        <button class="navbtn" data-sec="notifications" onclick="nav('notifications')"><span class="navbtn-ic">🔔</span>Notifications<span class="nav-badge hidden" id="notifBadge">0</span></button>
+        <button class="navbtn" data-sec="settings" onclick="nav('settings')"><span class="navbtn-ic">⚙</span>Settings</button>
+      </div>`;
+  }
+}
+
+/* ─── NAVIGATION ────────────────────────────────── */
+const SEC_TITLES = {
+  home:'Dashboard', founderHome:'Dashboard',
+  discover:'Discover Startups', meetings:'Meetings',
+  pipeline:'Deal Pipeline', messages:'Messages',
+  payment:'Billing & Plans', spayment:'Billing & Plans',
+  myProfile:'My Profile', startupProfile:'Startup Profile',
+  notifications:'Notifications', settings:'Settings',
+  pitchUpload:'Pitch & Materials', myStartup:'My Startup'
+};
+
+function nav(name) {
+  document.querySelectorAll('[id^="sec-"]').forEach(el => el.classList.add('hidden'));
+  const el = document.getElementById('sec-' + name);
+  if (el) el.classList.remove('hidden');
+  document.querySelectorAll('.navbtn').forEach(b => b.classList.toggle('active', b.dataset.sec === name));
+  document.getElementById('tbTitle').textContent = SEC_TITLES[name] || 'Dashboard';
+  curSec = name;
+  if (name === 'discover')      loadDiscover(discSector);
+  if (name === 'meetings')      loadMeetings();
+  if (name === 'pipeline')      loadPipeline();
+  if (name === 'notifications') loadNotifications();
+  if (name === 'myProfile')     loadMyProfile();
+  if (name === 'messages')      loadMsgThreads();
+  if (name === 'pitchUpload')   loadPitchList();  // FIX: load real uploaded files on nav
+}
+
+function onSearch(val) {
+  clearTimeout(searchTmr);
+  searchTmr = setTimeout(() => {
+    if (curSec === 'discover') loadDiscover(discSector, val);
+  }, 300);
+}
+
+/* ─── INVESTOR DASHBOARD ────────────────────────── */
+async function loadDashInvestor() {
+  document.getElementById('m1').textContent = '$42M';
+  document.getElementById('m1l').textContent = 'AUM Deployed';
+  document.getElementById('m2').textContent = '18';
+  document.getElementById('m2l').textContent = 'Portfolio Companies';
+  try {
+    const mData = await GET('/api/meetings');
+    const upcoming = mData.data.filter(m => m.status !== 'done' && m.status !== 'cancelled');
+    document.getElementById('m3').textContent = upcoming.length;
+    document.getElementById('dashMeet').innerHTML = upcoming.slice(0,3).map(m=>miHtml(m)).join('') ||
+      '<div style="color:var(--text3);font-size:12px;font-family:\'DM Mono\',monospace">No upcoming meetings.</div>';
+  } catch(e) {}
+  try {
+    const sData = await GET('/api/startups?');
+    const hot = sData.data.slice(0,4);
+    document.getElementById('dashHot').innerHTML = hot.map(s => `
+      <div class="fb" style="padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="showProfile('${s.slug}')">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:22px">${s.emoji}</div>
+          <div>
+            <div style="font-size:13px;font-weight:700">${s.name}</div>
+            <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${s.stage} · ${s.ask}</div>
+          </div>
+        </div>
+        <span class="pb pb-gold">${s.growth}</span>
+      </div>`).join('');
+  } catch(e) {}
+  try {
+    const nData = await GET('/api/notifications');
+    document.getElementById('dashNotifs').innerHTML = nData.data.slice(0,4).map(n=>`
+      <div class="notif-item">
+        <div class="notif-ic">${n.icon}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:${n.read?500:700}">${n.title}</div>
+          <div class="notif-time">${relTime(n.created_at)}</div>
+        </div>
+        ${!n.read ? '<div class="notif-dot"></div>' : ''}
+      </div>`).join('');
+    setBadges(nData.data.filter(n=>!n.read).length);
+  } catch(e) {}
+}
+
+/* ─── FOUNDER DASHBOARD ─────────────────────────── */
+async function loadDashFounder() {
+  try {
+    const mData = await GET('/api/meetings');
+    const upcoming = mData.data.filter(m => m.status !== 'done' && m.status !== 'cancelled');
+    document.getElementById('fm3').textContent = upcoming.length;
+    document.getElementById('fDashMeet').innerHTML = upcoming.slice(0,3).map(m=>miHtml(m)).join('') ||
+      '<div style="color:var(--text3);font-size:12px;font-family:\'DM Mono\',monospace">No upcoming meetings.</div>';
+  } catch(e) {}
+  try {
+    const nData = await GET('/api/notifications');
+    document.getElementById('fDashNotifs').innerHTML = nData.data.slice(0,4).map(n=>`
+      <div class="notif-item">
+        <div class="notif-ic">${n.icon}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:${n.read?500:700}">${n.title}</div>
+          <div class="notif-time">${relTime(n.created_at)}</div>
+        </div>
+        ${!n.read ? '<div class="notif-dot"></div>' : ''}
+      </div>`).join('');
+    setBadges(nData.data.filter(n=>!n.read).length);
+  } catch(e) {}
+}
+
+async function loadMyStartupData() {
+  try {
+    const d = await GET('/api/startups?');
+    const mine = d.data.find(s => s.owner_id === ME.id);
+    if (mine) {
+      document.getElementById('shLogo').textContent = mine.emoji;
+      document.getElementById('shName').textContent = mine.name;
+      document.getElementById('shTag').textContent  = mine.tagline;
+      document.getElementById('shStage').textContent = mine.stage;
+      document.getElementById('shSector').textContent = mine.sector;
+      document.getElementById('shAsk').textContent   = mine.ask;
+      // populate edit form
+      document.getElementById('stName').value    = mine.name;
+      document.getElementById('stEmoji').value   = mine.emoji;
+      document.getElementById('stTag').value     = mine.tagline;
+      document.getElementById('stDesc').value    = mine.description;
+      document.getElementById('stSector').value  = mine.sector;
+      document.getElementById('stLoc').value     = mine.location;
+      document.getElementById('stFounded').value = mine.founded;
+      document.getElementById('stWeb').value     = mine.website;
+      document.getElementById('stAsk').value     = mine.ask;
+      document.getElementById('stARR').value     = mine.arr;
+      document.getElementById('stGrowth').value  = mine.growth;
+      teamMembers = mine.team || [];
+      renderTeamList();
+    }
+  } catch(e) {}
+}
+
+/* ─── DISCOVER ──────────────────────────────────── */
+let allStartups = [];
+async function loadDiscover(sector='', q='') {
+  const grid = document.getElementById('sgrid');
+  if (!grid) return;
+  try {
+    let url = '/api/startups?';
+    if (sector) url += `sector=${encodeURIComponent(sector)}&`;
+    if (q)      url += `q=${encodeURIComponent(q)}`;
+    const d = await GET(url);
+    allStartups = d.data;
+    renderGrid(allStartups);
+  } catch(e) {
+    grid.innerHTML = '<div style="color:var(--text3)">Could not load startups.</div>';
+  }
+}
+
+function renderGrid(startups) {
+  const grid = document.getElementById('sgrid');
+  if (!startups.length) { grid.innerHTML = '<div style="color:var(--text3);padding:20px;font-family:\'DM Mono\',monospace">No startups found.</div>'; return; }
+  grid.innerHTML = startups.map(s => `
+    <div class="scard" onclick="showProfile('${s.slug}')">
+      <div class="scard-cover">${s.emoji}<span class="stage-badge">${s.stage}</span></div>
+      <div class="scard-body">
+        <div class="scard-name">${s.name}</div>
+        <div class="scard-tag">${s.tagline}</div>
+        <div class="tags">${(s.sector||'').split('·').map(t=>`<span class="tag">${t.trim()}</span>`).join('')}</div>
+        <div class="smets">
+          <div><div class="sm-val">${s.ask}</div><div class="sm-lbl">Asking</div></div>
+          <div><div class="sm-val">${s.arr}</div><div class="sm-lbl">ARR</div></div>
+          <div><div class="sm-val">${s.growth}</div><div class="sm-lbl">Growth</div></div>
+        </div>
+      </div>
+      <div class="scard-ftr">
+        <button class="btn-sm active" onclick="event.stopPropagation();scheduleMeeting('${s.name}')">📅 Meet</button>
+        <button class="btn-sm" id="sb-${s.id}" onclick="event.stopPropagation();toggleSave(${s.id},this)">${savedIds.has(s.id)?'💛 Saved':'🤍 Save'}</button>
+        <button class="btn-sm" onclick="event.stopPropagation();showProfile('${s.slug}')">View →</button>
+      </div>
+    </div>`).join('');
+}
+
+function filterSector(sector, btn) {
+  discSector = sector;
+  document.querySelectorAll('#discFilters .btn-sm').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadDiscover(sector);
+}
+
+/* ─── STARTUP PROFILE DETAIL ────────────────────── */
+async function showProfile(slug) {
+  nav('startupProfile');
+  const el = document.getElementById('sec-startupProfile');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>Loading profile…</div>';
+  try {
+    const d = await GET(`/api/startups/${slug}`);
+    const s = d.data;
+    const isSaved = savedIds.has(s.id);
+    const teamHtml = (s.team||[]).map(m => `
+      <div class="team-card">
+        <div class="team-av">${m.av || m.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+        <div><div style="font-size:13px;font-weight:700">${m.name}</div><div style="font-size:11px;color:var(--text3)">${m.role}</div></div>
+      </div>`).join('');
+    el.innerHTML = `
+      <button class="btn-sm" onclick="nav('discover')" style="margin-bottom:18px">← Back to Discover</button>
+      <div class="phero">
+        <div class="phero-top">
+          <div class="p-logo">${s.emoji}</div>
+          <div class="p-info">
+            <div class="p-name">${s.name}</div>
+            <div class="p-tagline">${s.tagline}</div>
+            <div class="p-badges">
+              <span class="pb pb-gold">${s.stage}</span>
+              <span class="pb pb-teal">${s.sector}</span>
+              <span class="pb pb-out">📍 ${s.location}</span>
+              <span class="pb pb-out">Est. ${s.founded}</span>
+            </div>
+          </div>
+          <div class="p-acts">
+            <button class="btn-sm active" onclick="scheduleMeeting('${s.name}')">📅 Schedule Meeting</button>
+            <button class="btn-sm" id="pSaveBtn" onclick="toggleSave(${s.id},this)">${isSaved?'💛 Saved':'🤍 Save'}</button>
+          </div>
+        </div>
+        <div class="pstats-row" style="grid-template-columns:repeat(3,1fr)">
+          <div class="pstat"><span class="pstat-val">${s.arr}</span><div class="pstat-lbl">ARR</div></div>
+          <div class="pstat"><span class="pstat-val">${s.growth}</span><div class="pstat-lbl">YoY Growth</div></div>
+          <div class="pstat"><span class="pstat-val">${s.ask}</span><div class="pstat-lbl">Raising</div></div>
+        </div>
+      </div>
+      <div class="pgrid">
+        <div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">About ${s.name}</span></div>
+            <div class="card-body">
+              <div class="s-section-title">Company <em>Description</em></div>
+              <p class="desc-text">${s.description}</p>
+              ${teamHtml ? `<div class="s-section-title mt16">The <em>Team</em></div><div class="team-grid">${teamHtml}</div>` : ''}
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-head"><span class="card-title">Quick Actions</span></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:9px">
+              <button class="btn-full" onclick="scheduleMeeting('${s.name}')">📅 Request Meeting</button>
+              <button class="btn-outline-full" onclick="addDealFromSt('${s.name}','${s.sector}','${s.ask}')">+ Add to Pipeline</button>
+            </div>
+          </div>
+          ${s.pitches && s.pitches.length ? `
+          <div class="card" style="margin-bottom:16px">
+            <div class="card-head"><span class="card-title">📑 Pitch Materials</span></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+              ${s.pitches.map(p => `
+                <a href="${p.url}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor=''">
+                  <span style="font-size:20px">📑</span>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(p.name)}</div>
+                    <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">${p.size ? (p.size/1024/1024).toFixed(2)+' MB' : ''} · ${p.uploaded_at ? new Date(p.uploaded_at).toLocaleDateString() : ''}</div>
+                  </div>
+                  <span style="color:var(--gold);font-size:12px;font-family:'DM Mono',monospace">↗</span>
+                </a>`).join('')}
+            </div>
+          </div>` : ''}
+          <div class="card">
+            <div class="card-head"><span class="card-title">Details</span></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:9px;font-size:12px">
+              <div class="fb"><span style="color:var(--text3)">Stage</span><span class="text-gold">${s.stage}</span></div>
+              <div class="fb"><span style="color:var(--text3)">Sector</span><span>${s.sector}</span></div>
+              <div class="fb"><span style="color:var(--text3)">Founded</span><span>${s.founded}</span></div>
+              <div class="fb"><span style="color:var(--text3)">Location</span><span>📍 ${s.location}</span></div>
+              <div class="fb"><span style="color:var(--text3)">Investor Saves</span><span>${s.save_count}</span></div>
+              ${s.website ? `<div class="fb"><span style="color:var(--text3)">Website</span><a href="${s.website}" target="_blank" style="color:var(--teal)">${s.website}</a></div>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  } catch(e) { el.innerHTML = `<div style="color:var(--red)">${e.message}</div>`; }
+}
+
+/* ─── SAVE / WATCHLIST ──────────────────────────── */
+async function loadSaved() {
+  try {
+    const d = await GET('/api/user/saved');
+    savedIds = new Set(d.data.map(s => s.id));
+    document.getElementById('m4').textContent = savedIds.size;
+  } catch(e) {}
+}
+
+async function toggleSave(startupId, btn) {
+  try {
+    const d = await POST(`/api/startups/${startupId}/save`);
+    if (d.data.saved) { savedIds.add(startupId); showToast('💛 Saved to watchlist!'); }
+    else { savedIds.delete(startupId); showToast('🤍 Removed from watchlist'); }
+    const label = savedIds.has(startupId) ? '💛 Saved' : '🤍 Save';
+    if (btn) btn.textContent = label;
+    const cb = document.getElementById(`sb-${startupId}`);
+    if (cb) cb.textContent = label;
+    const m4 = document.getElementById('m4');
+    if (m4) m4.textContent = savedIds.size;
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+/* ─── MEETINGS ──────────────────────────────────── */
+async function loadMeetings() {
+  try {
+    const d = await GET('/api/meetings');
+    const upcoming = d.data.filter(m => m.status !== 'done' && m.status !== 'cancelled');
+    const past     = d.data.filter(m => m.status === 'done'  || m.status === 'cancelled');
+    document.getElementById('upcomingCnt').textContent = `${upcoming.length} scheduled`;
+    document.getElementById('meetUpcoming').innerHTML = upcoming.length
+      ? upcoming.map(m => miHtml(m, true)).join('')
+      : '<div style="color:var(--text3);font-size:12px;font-family:\'DM Mono\',monospace">No upcoming meetings.</div>';
+    document.getElementById('meetPast').innerHTML = past.length
+      ? past.map(m => miHtml(m, false)).join('')
+      : '<div style="color:var(--text3);font-size:12px;font-family:\'DM Mono\',monospace">No past meetings.</div>';
+  } catch(e) {}
+}
+
+async function loadMeetBadge() {
+  try {
+    const d = await GET('/api/meetings');
+    const cnt = d.data.filter(m => m.status === 'pending' && m.receiver_id === ME.id).length;
+    setMeetBadge(cnt);
+  } catch(e) {}
+}
+
+function miHtml(m, withActions=false) {
+  const cls = { confirmed:'ms-ok', upcoming:'ms-upcoming', pending:'ms-pending', done:'ms-done', cancelled:'ms-done' }[m.status] || '';
+  const lbl = { confirmed:'✓ CONFIRMED', upcoming:'UPCOMING', pending:'⏳ PENDING', done:'DONE', cancelled:'CANCELLED' }[m.status] || m.status.toUpperCase();
+  const icon = m.meet_type?.includes('Coffee') ? '☕' : m.meet_type?.includes('Pitch') ? '🎯' : m.meet_type?.includes('Office') ? '🏢' : m.meet_type?.includes('Due') ? '🤝' : '📹';
+  const dateStr = m.date ? m.date.slice(5).replace('-','/') : '—';
+  const isReceiver = ME && m.receiver_id === ME.id;
+  const actions = withActions && m.status === 'pending' && isReceiver
+    ? `<div class="mi-acts">
+         <button class="btn-sm active" style="color:var(--green)" onclick="updMeet(${m.id},'confirmed')">✓ Accept</button>
+         <button class="btn-sm" style="color:var(--red)" onclick="updMeet(${m.id},'cancelled')">✕ Decline</button>
+       </div>`
+    : withActions && m.status !== 'done' && m.status !== 'cancelled'
+    ? `<div class="mi-acts"><button class="btn-sm" style="color:var(--red)" onclick="updMeet(${m.id},'cancelled')">Cancel</button></div>`
+    : '';
+  return `<div class="mi">
+    <div class="mi-date-block"><div class="mi-day">${dateStr}</div><div class="mi-time">${m.time||'—'}</div></div>
+    <div class="mi-icon-box">${icon}</div>
+    <div class="mi-body">
+      <div class="mi-title">${m.meet_type} — ${m.company}</div>
+      <div class="mi-meta">${m.duration||''} ${m.message ? '· '+m.message.slice(0,40) : ''}</div>
+      ${actions}
+    </div>
+    <span class="mstatus ${cls}">${lbl}</span>
+  </div>`;
+}
+
+async function updMeet(id, status) {
+  try {
+    await PUT(`/api/meetings/${id}/status`, { status });
+    loadMeetings(); loadMeetBadge();
+    showToast(`Meeting ${status}!`);
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+function scheduleMeeting(company='') {
+  document.getElementById('meetWithCaption').textContent = company ? `with ${company}` : 'New Meeting Request';
+  document.getElementById('meetCo').value = company;
+  document.getElementById('schedModal').classList.add('open');
+}
+function openSchedModal() { scheduleMeeting(); }
+function closeSchedModal() { document.getElementById('schedModal').classList.remove('open'); }
+
+async function confirmMeeting() {
+  const company = document.getElementById('meetCo').value.trim();
+  const type    = document.getElementById('meetType').value;
+  const date    = document.getElementById('meetDate').value;
+  const time    = document.getElementById('meetTime').value;
+  const dur     = document.getElementById('meetDur').value;
+  const msg     = document.getElementById('meetMsg').value.trim();
+  if (!company) { showToast('⚠️ Enter a company or person name'); return; }
+  try {
+    await POST('/api/meetings', { company, meet_type:type, date, time, duration:dur, message:msg, receiver_id:ME.id });
+    closeSchedModal();
+    showToast('📅 Meeting request sent!');
+    loadMeetings(); loadMeetBadge();
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+/* ─── PIPELINE ──────────────────────────────────── */
+const P_STAGES = ['Prospect','In Review','Due Diligence','Term Sheet'];
+
+async function loadPipeline() {
+  try {
+    const d = await GET('/api/pipeline');
+    pipeData = d.data;
+    renderPipeline();
+  } catch(e) {}
+}
+
+function renderPipeline() {
+  const board = document.getElementById('pBoard');
+  board.innerHTML = P_STAGES.map(stage => {
+    const colId = 'pc-' + stage.replace(/\s+/g,'_');
+    const cards = pipeData.filter(d => d.stage === stage);
+    return `<div class="pcol" id="${colId}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="onDrop(event,'${stage}')">
+      <div class="pcol-head">${stage} <span class="pcol-cnt">${cards.length}</span></div>
+      ${cards.map(c => `
+        <div class="deal" draggable="true" ondragstart="onDrag(event,${c.id})">
+          <div class="deal-name">${c.name}</div>
+          <div class="deal-sec">${c.sector||'—'}</div>
+          <div class="deal-ask">${c.ask||'—'}</div>
+          <button class="btn-sm" style="margin-top:8px;color:var(--red);font-size:10px" onclick="deleteDeal(${c.id})">Remove</button>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+let draggingId = null;
+function onDrag(e,id){draggingId=id;e.dataTransfer.effectAllowed='move';}
+async function onDrop(e,stage){
+  e.preventDefault();e.currentTarget.classList.remove('drag-over');
+  if(!draggingId)return;
+  try{await PUT(`/api/pipeline/${draggingId}`,{stage});showToast('🔄 Moved to '+stage);loadPipeline();}
+  catch(err){showToast('Error: '+err.message);}
+  draggingId=null;
+}
+function openAddDeal(){document.getElementById('addDealModal').classList.add('open');}
+function closeAddDeal(){document.getElementById('addDealModal').classList.remove('open');}
+async function confirmAddDeal(){
+  const name=document.getElementById('dealName').value.trim();
+  const sec=document.getElementById('dealSec').value.trim();
+  const ask=document.getElementById('dealAsk').value.trim();
+  const stage=document.getElementById('dealStage').value;
+  if(!name){showToast('⚠️ Enter a company name');return;}
+  try{
+    await POST('/api/pipeline',{name,sector:sec,ask,stage});
+    closeAddDeal();showToast('➕ Deal added!');loadPipeline();
+    ['dealName','dealSec','dealAsk'].forEach(id=>document.getElementById(id).value='');
+  }catch(e){showToast('Error: '+e.message);}
+}
+async function deleteDeal(id){
+  try{await DEL(`/api/pipeline/${id}`);showToast('🗑️ Removed');loadPipeline();}
+  catch(e){showToast('Error: '+e.message);}
+}
+function addDealFromSt(name,sector,ask){
+  document.getElementById('dealName').value=name;
+  document.getElementById('dealSec').value=sector;
+  document.getElementById('dealAsk').value=ask;
+  openAddDeal();
+}
+
+/* ─── MESSAGES ──────────────────────────────────── */
+async function loadMsgThreads() {
+  const el = document.getElementById('thrList');
+  try {
+    const d = await GET('/api/messages/threads');
+    if (!d.data.length) {
+      el.innerHTML = '<div style="padding:14px;color:var(--text3);font-size:12px;font-family:\'DM Mono\',monospace">No conversations yet.</div>';
+      return;
+    }
+    el.innerHTML = d.data.map(t => `
+      <div class="thread-item ${activeThr===t.partner_id?'active':''}" onclick="openThread(${t.partner_id},'${escHtml(t.partner_name)}')">
+        <div class="th-av">${t.partner_name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+        <div class="th-meta">
+          <div class="th-name">${t.partner_name}</div>
+          <div class="th-preview">${(t.last_message||'').slice(0,36)}…</div>
+        </div>
+        ${t.unread > 0 ? `<span class="th-badge">${t.unread}</span>` : ''}
+      </div>`).join('');
+    setMsgBadge(d.data.reduce((s,t) => s + t.unread, 0));
+  } catch(e) {}
+}
+
+async function openThread(partnerId, partnerName) {
+  activeThr = partnerId;
+  if (partnerName) activeThrName = partnerName;
+  const pane = document.getElementById('chatPane');
+  pane.innerHTML = `
+    <div class="msg-pane-head">
+      <div class="th-av" style="width:32px;height:32px;font-size:11px">${activeThrName.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+      <div style="font-size:13px;font-weight:700">${activeThrName}</div>
+    </div>
+    <div id="bubbles" class="chat-messages">
+      <div class="loading"><div class="spinner"></div>Loading…</div>
+    </div>
+    <div class="msg-input-row">
+      <input id="msgIn" class="finput" placeholder="Type a message…" style="flex:1" onkeydown="if(event.key==='Enter')sendMsg(${partnerId})">
+      <button class="btn-gold" style="padding:9px 16px;font-size:12px" onclick="sendMsg(${partnerId})">Send</button>
+    </div>`;
+  loadMsgThreads();
+  try {
+    const d = await GET(`/api/messages/${partnerId}`);
+    const bubbles = document.getElementById('bubbles');
+    if (!bubbles) return;
+    if (!d.data.length) {
+      bubbles.innerHTML = '<div style="text-align:center;color:var(--text3);font-size:12px;font-family:\'DM Mono\',monospace;padding:20px">No messages yet — say hello! 👋</div>';
+      return;
+    }
+    bubbles.innerHTML = d.data.map(m => `
+      <div class="chat-msg ${m.sender_id===ME.id?'mine':''}">
+        <div class="bubble ${m.sender_id===ME.id?'mine':'theirs'}">
+          <div>${escHtml(m.body)}</div>
+          <div class="bubble-time">${relTime(m.created_at)}</div>
+        </div>
+      </div>`).join('');
+    bubbles.scrollTop = bubbles.scrollHeight;
+  } catch(e) {}
+}
+
+async function sendMsg(partnerId) {
+  const inp = document.getElementById('msgIn');
+  if (!inp || !inp.value.trim()) return;
+  const body = inp.value.trim();
+  inp.value = '';
+  try {
+    await POST(`/api/messages/${partnerId}`, { body });
+    openThread(partnerId, activeThrName);
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+/* ─── NOTIFICATIONS ─────────────────────────────── */
+async function loadNotifications() {
+  try {
+    const d = await GET('/api/notifications');
+    const el = document.getElementById('notifList');
+    if (!d.data.length) { el.innerHTML = '<div style="color:var(--text3);font-size:12px;font-family:\'DM Mono\',monospace">No notifications yet.</div>'; return; }
+    el.innerHTML = d.data.map(n => `
+      <div class="notif-item">
+        <div class="notif-ic">${n.icon}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:${n.read?500:700}">${n.title}</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px">${n.body}</div>
+          <div class="notif-time">${relTime(n.created_at)}</div>
+        </div>
+        ${!n.read ? '<div class="notif-dot"></div>' : ''}
+      </div>`).join('');
+    setBadges(d.data.filter(n=>!n.read).length);
+  } catch(e) {}
+}
+
+async function loadNotifBadge() {
+  try {
+    const d = await GET('/api/notifications');
+    setBadges(d.data.filter(n=>!n.read).length);
+  } catch(e) {}
+}
+
+async function markAllRead() {
+  try {
+    await PUT('/api/notifications/read-all');
+    loadNotifications(); setBadges(0);
+    showToast('✅ All marked as read');
+  } catch(e) {}
+}
+
+/* ─── MY PROFILE ─────────────────────────────────── */
+function loadMyProfile() {
+  const el = document.getElementById('myProfCont');
+  const u = ME;
+  el.innerHTML = `
+    <div class="phero" style="margin-bottom:18px">
+      <div class="phero-top">
+        <div class="p-logo">${u.role==='startup'?'🚀':'💼'}</div>
+        <div class="p-info">
+          <div class="p-name">${u.first_name} ${u.last_name}</div>
+          <div class="p-tagline">${u.company || 'Your Company'}</div>
+          <div class="p-badges">
+            <span class="pb pb-gold">${u.role==='investor'?'INVESTOR':'FOUNDER'}</span>
+            ${u.location?`<span class="pb pb-out">📍 ${u.location}</span>`:''}
+          </div>
+        </div>
+        <div class="p-acts">
+          <button class="btn-sm active" onclick="nav('settings')">✏️ Edit Profile</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">About Me</span></div>
+      <div class="card-body">
+        <p class="desc-text">${u.bio || 'No bio added yet. Go to Settings to add one.'}</p>
+        <div class="three-col" style="margin-top:16px">
+          <div style="text-align:center;background:var(--surface);padding:16px;border-radius:var(--radius-sm);border:1px solid var(--border)">
+            <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--gold)">${savedIds.size}</div>
+            <div style="font-size:9px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.1em;font-family:'DM Mono',monospace">Saved</div>
+          </div>
+          <div style="text-align:center;background:var(--surface);padding:16px;border-radius:var(--radius-sm);border:1px solid var(--border)">
+            <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--gold)" id="profileMeetCount">—</div>
+            <div style="font-size:9px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.1em;font-family:'DM Mono',monospace">Meetings</div>
+          </div>
+          <div style="text-align:center;background:var(--surface);padding:16px;border-radius:var(--radius-sm);border:1px solid var(--border)">
+            <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--gold)">${u.role==='startup'?'Founder':'Investor'}</div>
+            <div style="font-size:9px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.1em;font-family:'DM Mono',monospace">Role</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  GET('/api/meetings').then(d => {
+    const cnt = document.getElementById('profileMeetCount');
+    if (cnt) cnt.textContent = d.data.length;
+  }).catch(()=>{});
+}
+
+/* ─── SETTINGS ──────────────────────────────────── */
+async function saveSettings() {
+  try {
+    const d = await PUT('/api/user/profile', {
+      first_name: document.getElementById('setFirst').value.trim(),
+      last_name:  document.getElementById('setLast').value.trim(),
+      company:    document.getElementById('setCompany').value.trim(),
+      location:   document.getElementById('setLocation').value.trim(),
+      bio:        document.getElementById('setBio').value.trim(),
+    });
+    ME = d.data;
+    populateSidebar();
+    showToast('✅ Settings saved!');
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+/* ─── STARTUP PROFILE EDITOR ────────────────────── */
+function renderTeamList() {
+  const el = document.getElementById('teamList');
+  el.innerHTML = teamMembers.length
+    ? teamMembers.map((m,i) => `
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="flex:1;font-size:13px">${m.name} <span style="color:var(--text3)">· ${m.role}</span></div>
+          <button class="btn-sm" style="color:var(--red)" onclick="removeTeam(${i})">✕</button>
+        </div>`).join('')
+    : '<div style="color:var(--text3);font-size:12px;font-family:\'DM Mono\',monospace;padding:8px 0">No team members added.</div>';
+}
+
+function addTeamMember() {
+  const val = document.getElementById('tmName').value.trim();
+  if (!val) return;
+  const parts = val.split('·').map(p=>p.trim());
+  teamMembers.push({ name: parts[0], role: parts[1]||'Team Member', av: parts[0].split(' ').map(w=>w[0]).join('').slice(0,2) });
+  document.getElementById('tmName').value = '';
+  renderTeamList();
+}
+
+function removeTeam(i) { teamMembers.splice(i,1); renderTeamList(); }
+
+async function saveStartupProfile() {
+  const payload = {
+    name: document.getElementById('stName').value.trim(),
+    emoji: document.getElementById('stEmoji').value.trim() || '🚀',
+    tagline: document.getElementById('stTag').value.trim(),
+    description: document.getElementById('stDesc').value.trim(),
+    sector: document.getElementById('stSector').value.trim(),
+    stage: document.getElementById('stStage').value,
+    location: document.getElementById('stLoc').value.trim(),
+    founded: document.getElementById('stFounded').value.trim(),
+    website: document.getElementById('stWeb').value.trim(),
+    ask: document.getElementById('stAsk').value.trim(),
+    arr: document.getElementById('stARR').value.trim(),
+    growth: document.getElementById('stGrowth').value.trim(),
+    team: teamMembers
+  };
+  if (!payload.name) { showToast('⚠️ Startup name is required'); return; }
+  try {
+    // Check if startup exists for this user
+    const existing = await GET('/api/startups?');
+    const mine = existing.data.find(s => s.owner_id === ME.id);
+    if (mine) {
+      await PUT(`/api/startups/${mine.id}`, payload);
+    } else {
+      await POST('/api/startups', payload);
+    }
+    showToast('🚀 Startup profile saved!');
+    loadMyStartupData();
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+/* ─── PITCH UPLOAD ──────────────────────────────── */
+// FIX: load persisted pitch files from backend when opening Pitch & Materials section
+async function loadPitchList() {
+  try {
+    const sData = await GET('/api/startups?');
+    const mine  = sData.data.find(s => s.owner_id === ME.id);
+    renderUploadedList(mine ? mine.pitches : []);
+  } catch(e) {}
+}
+
+function handlePitchFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  processPitchFile(file);
+}
+
+function handlePitchDrop(e) {
+  e.preventDefault();
+  document.getElementById('pitchDropZone').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) processPitchFile(file);
+}
+
+async function processPitchFile(file) {
+  const preview  = document.getElementById('pitchPreview');
+  const progress = document.getElementById('pitchProgress');
+  const bar      = document.getElementById('pitchBar');
+
+  preview.innerHTML = `
+    <div class="pitch-preview">
+      <div class="pitch-file-ic">📑</div>
+      <div class="pitch-file-info">
+        <div class="pitch-file-name">${file.name}</div>
+        <div class="pitch-file-meta">${(file.size/1024/1024).toFixed(2)} MB · ${file.type.split('/')[1]?.toUpperCase()||'FILE'}</div>
+      </div>
+      <span class="pitch-del" onclick="removePitch()">🗑</span>
+    </div>`;
+
+  progress.classList.remove('hidden');
+  bar.style.width = '0%';
+
+  // FIX: actually upload the file to the backend
+  try {
+    // Find current user's startup id
+    const sData = await GET('/api/startups?');
+    const mine  = sData.data.find(s => s.owner_id === ME.id);
+    if (!mine) { showToast('⚠️ Save your startup profile first before uploading a pitch'); progress.classList.add('hidden'); return; }
+
+    // Animate bar while uploading
+    let pct = 0;
+    const tick = setInterval(() => { pct = Math.min(pct + 8, 85); bar.style.width = pct + '%'; }, 180);
+
+    const formData = new FormData();
+    formData.append('pitch', file);
+
+    const headers = {};
+    if (TOKEN) headers['Authorization'] = `Bearer ${TOKEN}`;
+    const res  = await fetch(`/api/startups/${mine.id}/pitch`, { method:'POST', headers, body: formData });
+    const data = await res.json();
+    clearInterval(tick);
+
+    if (!res.ok) { showToast('Upload failed: ' + (data.error || 'Unknown error')); progress.classList.add('hidden'); return; }
+
+    bar.style.width = '100%';
+    setTimeout(() => {
+      progress.classList.add('hidden');
+      renderUploadedList(data.data.pitches);
+      showToast('📑 Pitch deck uploaded!');
+    }, 400);
+  } catch(e) {
+    progress.classList.add('hidden');
+    showToast('Upload error: ' + e.message);
+  }
+}
+
+function removePitch() {
+  document.getElementById('pitchPreview').innerHTML = '';
+  document.getElementById('pitchFile').value = '';
+}
+
+// FIX: render uploaded files list from real backend data (array of {name,url,size,uploaded_at})
+function renderUploadedList(pitches) {
+  const el = document.getElementById('uploadedList');
+  if (!pitches || !pitches.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px;font-family:\'DM Mono\',monospace">No materials uploaded yet.</div>';
+    return;
+  }
+  el.innerHTML = pitches.map((f, i) => `
+    <div class="fb" style="padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">📑</span>
+        <div>
+          <div style="font-size:12px;font-weight:700">${escHtml(f.name)}</div>
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">${f.size ? (f.size/1024/1024).toFixed(2)+' MB · ' : ''}${f.uploaded_at ? new Date(f.uploaded_at).toLocaleDateString() : ''}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${f.url ? `<a href="${f.url}" target="_blank" class="btn-sm" style="text-decoration:none">View</a>` : ''}
+        <button class="btn-sm" style="color:var(--red)" onclick="deleteUpload('${escHtml(f.name)}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+// Keep legacy addUploadedFile as a no-op shim (saveVideo still calls it for video links)
+function addUploadedFile(name, size) {
+  // video links are not real files — just show a toast; no in-memory list needed
+}
+
+async function deleteUpload(filename) {
+  try {
+    const sData = await GET('/api/startups?');
+    const mine  = sData.data.find(s => s.owner_id === ME.id);
+    if (!mine) return;
+    const headers = { 'Content-Type': 'application/json' };
+    if (TOKEN) headers['Authorization'] = `Bearer ${TOKEN}`;
+    const res  = await fetch(`/api/startups/${mine.id}/pitch/${encodeURIComponent(filename)}`, { method:'DELETE', headers });
+    const data = await res.json();
+    if (res.ok) { renderUploadedList(data.data.pitches); showToast('🗑️ Removed'); }
+    else showToast('Error: ' + (data.error || 'Delete failed'));
+  } catch(e) { showToast('Error: ' + e.message); }
+}
+
+function saveVideo() {
+  const url = document.getElementById('videoUrl').value.trim();
+  if (!url) { showToast('⚠️ Enter a video URL'); return; }
+  showToast('🎬 Video link saved!');
+  addUploadedFile('Video Pitch — ' + document.getElementById('videoTitle').value || 'Video', 0);
+}
+
+function saveMetrics() {
+  showToast('📊 Metrics updated!');
+}
+
+/* ─── PAYMENT ───────────────────────────────────── */
+const PLAN_PRICES = { partner:'$199/mo', apex:'$599/mo', growth:'$79/mo', scale:'$199/mo' };
+const PLAN_AMOUNTS = { partner:'$199.00', apex:'$599.00', growth:'$79.00', scale:'$199.00' };
+
+function subscribePlan(plan) {
+  currentPlan = plan;
+  document.getElementById('payCaption').textContent = plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan upgrade';
+  document.getElementById('payPlanName').textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+  document.getElementById('payAmount').textContent = PLAN_AMOUNTS[plan] || '—';
+  document.getElementById('payModal').classList.add('open');
+}
+
+function closePayModal() { document.getElementById('payModal').classList.remove('open'); }
+
+function formatCard(input) {
+  let val = input.value.replace(/\D/g,'').slice(0,16);
+  input.value = val.replace(/(.{4})/g,'$1 ').trim();
+}
+
+async function confirmPayment() {
+  const card = document.getElementById('payCard').value.trim();
+  const exp  = document.getElementById('payExp').value.trim();
+  const cvc  = document.getElementById('payCvc').value.trim();
+  if (!card || !exp || !cvc) { showToast('⚠️ Please fill in all payment details'); return; }
+  setBtnLoad('payBtn', true, 'Complete Payment');
+  await new Promise(r => setTimeout(r, 1800));
+  setBtnLoad('payBtn', false, 'Complete Payment');
+  // FIX: update plan on the backend so it persists
+  try { await PUT('/api/user/plan', { plan: currentPlan }); } catch(e) {}
+  closePayModal();
+  showToast(`✅ Subscribed to ${currentPlan?.charAt(0).toUpperCase() + currentPlan?.slice(1)} plan!`);
+  const tbody = document.getElementById('txnBody');
+  if (tbody) {
+    tbody.innerHTML = `<tr>
+      <td>${new Date().toLocaleDateString()}</td>
+      <td>${currentPlan?.charAt(0).toUpperCase() + currentPlan?.slice(1)} Plan</td>
+      <td class="text-gold">${PLAN_AMOUNTS[currentPlan]}</td>
+      <td><span class="txn-status txn-paid">PAID</span></td>
+    </tr>`;
+  }
+}
+
+/* ─── BADGES ─────────────────────────────────────── */
+function setBadges(count) {
+  const badge = document.getElementById('notifBadge');
+  const dot   = document.getElementById('notifDot');
+  if (badge) { badge.classList.toggle('hidden', count===0); badge.textContent=count; }
+  if (dot)   dot.classList.toggle('hidden', count===0);
+}
+function setMeetBadge(count) {
+  const badge = document.getElementById('meetBadge');
+  const dot   = document.getElementById('meetDot');
+  if (badge) { badge.classList.toggle('hidden', count===0); badge.textContent=count; }
+  if (dot)   dot.classList.toggle('hidden', count===0);
+}
+function setMsgBadge(count) {
+  const badge = document.getElementById('msgBadge');
+  if (badge) { badge.classList.toggle('hidden', count===0); badge.textContent=count; }
+}
+
+/* ─── TOAST ──────────────────────────────────────── */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.transform='translateY(0)'; t.style.opacity='1';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.style.transform='translateY(80px)'; t.style.opacity='0'; }, 3400);
+}
+
+/* ─── UTILS ──────────────────────────────────────── */
+function relTime(iso) {
+  if (!iso) return '';
+  const ts = iso.endsWith('Z')||iso.includes('+')?iso:iso+'Z';
+  const diff = (Date.now()-new Date(ts))/1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff/86400)}d ago`;
+  return new Date(ts).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+}
+
+function escHtml(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* Close overlays on outside click */
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target===e.currentTarget) e.currentTarget.classList.remove('open'); });
+});
+
+/* ─── AUTO RESUME SESSION ────────────────────────── */
+(async function init() {
+  if (!TOKEN) return;
+  try {
+    const d = await GET('/api/auth/me');
+    ME = d.data;
+    document.getElementById('landing').classList.remove('active');
+    launchDash();
+  } catch(e) {
+    TOKEN = null;
+    localStorage.removeItem('desire_token');
+  }
+})();
+</script>
+</body>
+</html>
