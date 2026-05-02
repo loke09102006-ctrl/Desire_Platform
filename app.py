@@ -774,7 +774,13 @@ def seed():
 with app.app_context():
     db.create_all()
     seed()
+    import logging
+    logging.warning(f"Static folder: {app.static_folder}")
+    import os as _os
+    logging.warning(f"Static exists: {_os.path.exists(app.static_folder)}")
+    logging.warning(f"Index exists: {_os.path.exists(_os.path.join(app.static_folder, 'index.html'))}")
  
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=False, host="0.0.0.0", port=port)
+ 
