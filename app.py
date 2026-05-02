@@ -1,6 +1,6 @@
 """
 Desire — Venture Funding Platform
-Flask Backend  |  SQLite + SQLAlchemy  |  JWT Auth
+Flask Backend  |  SQLAlchemy  |  JWT Auth
 All bugs fixed:
   - JWT secret from env
   - Slug collision guard + name-change slug sync
@@ -13,8 +13,11 @@ All bugs fixed:
   - Pitch upload: real file storage route
   - Plan field + /api/user/plan route for billing
   - get_jwt import removed (was unused)
+  - DATABASE_URL env var support for PostgreSQL on Render
+    (falls back to sqlite:////tmp/desire.db if not set)
+  - postgres:// → postgresql:// URL rewrite for SQLAlchemy compat
 """
-
+ 
 from flask import Flask, request, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -24,24 +27,28 @@ from flask_jwt_extended import (
 from flask_cors import CORS
 from datetime import datetime, timedelta, timezone
 import os, json, re
-
+ 
 BASE = os.path.dirname(os.path.abspath(__file__))
-
+ 
 app = Flask(__name__, static_folder=os.path.join(BASE, "static"))
-app.config["SQLALCHEMY_DATABASE_URI"]    = f"sqlite:///{os.path.join(BASE,'desire.db')}"
+_db_url = os.environ.get("DATABASE_URL", f"sqlite:////tmp/desire.db")
+# Render gives postgres:// but SQLAlchemy needs postgresql://
+if _db_url.startswith("postgres://"):
+    _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = _db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # FIX: read secret from env; hard-coded fallback only for local dev
 app.config["JWT_SECRET_KEY"]             = os.environ.get("JWT_SECRET_KEY", "change-me-in-production")
 app.config["JWT_ACCESS_TOKEN_EXPIRES"]   = timedelta(days=7)
-
+ 
 db     = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 jwt    = JWTManager(app)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
-
-
+ 
+ 
 # ─── Models ────────────────────────────────────────────────────────────────
-
+ 
 class User(db.Model):
     id         = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(80),  nullable=False)
@@ -56,14 +63,14 @@ class User(db.Model):
     plan       = db.Column(db.String(30),  default="free")   # FIX: billing plan field
     # FIX: use timezone-aware UTC timestamps everywhere
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-
+ 
     meetings_sent     = db.relationship("Meeting",      foreign_keys="Meeting.sender_id",    back_populates="sender",   lazy="dynamic")
     meetings_received = db.relationship("Meeting",      foreign_keys="Meeting.receiver_id",  back_populates="receiver", lazy="dynamic")
     messages_sent     = db.relationship("Message",      foreign_keys="Message.sender_id",    back_populates="sender",   lazy="dynamic")
     messages_received = db.relationship("Message",      foreign_keys="Message.receiver_id",  back_populates="receiver", lazy="dynamic")
     notifications     = db.relationship("Notification", back_populates="user",               lazy="dynamic")
     saved             = db.relationship("SavedStartup", back_populates="user",               lazy="dynamic")
-
+ 
     def to_dict(self):
         return {
             "id": self.id, "first_name": self.first_name, "last_name": self.last_name,
@@ -73,8 +80,8 @@ class User(db.Model):
             "plan": self.plan or "free",
             "created_at": self.created_at.isoformat()
         }
-
-
+ 
+ 
 class Startup(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     owner_id    = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -94,19 +101,19 @@ class Startup(db.Model):
     team_json   = db.Column(db.Text, default="[]")
     pitch_json  = db.Column(db.Text, default="[]")   # FIX: persisted pitch files
     created_at  = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-
+ 
     saves = db.relationship("SavedStartup", back_populates="startup", lazy="dynamic")
-
+ 
     @property
     def team(self):
         try:   return json.loads(self.team_json)
         except: return []
-
+ 
     @property
     def pitches(self):
         try:   return json.loads(self.pitch_json)
         except: return []
-
+ 
     def to_dict(self):
         return {
             "id": self.id, "owner_id": self.owner_id,
@@ -120,8 +127,8 @@ class Startup(db.Model):
             "save_count": self.saves.count(),
             "created_at": self.created_at.isoformat()
         }
-
-
+ 
+ 
 class Meeting(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     sender_id   = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -134,10 +141,10 @@ class Meeting(db.Model):
     message     = db.Column(db.Text)
     status      = db.Column(db.String(20), default="pending")
     created_at  = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-
+ 
     sender   = db.relationship("User", foreign_keys=[sender_id],   back_populates="meetings_sent")
     receiver = db.relationship("User", foreign_keys=[receiver_id], back_populates="meetings_received")
-
+ 
     def to_dict(self):
         return {
             "id": self.id, "sender_id": self.sender_id, "receiver_id": self.receiver_id,
@@ -147,8 +154,8 @@ class Meeting(db.Model):
             "duration": self.duration or "", "message": self.message or "",
             "status": self.status, "created_at": self.created_at.isoformat()
         }
-
-
+ 
+ 
 class Message(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
     sender_id   = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -156,10 +163,10 @@ class Message(db.Model):
     body        = db.Column(db.Text, nullable=False)
     read        = db.Column(db.Boolean, default=False)
     created_at  = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-
+ 
     sender   = db.relationship("User", foreign_keys=[sender_id],   back_populates="messages_sent")
     receiver = db.relationship("User", foreign_keys=[receiver_id], back_populates="messages_received")
-
+ 
     def to_dict(self):
         return {
             "id": self.id, "sender_id": self.sender_id, "receiver_id": self.receiver_id,
@@ -168,8 +175,8 @@ class Message(db.Model):
             "body": self.body, "read": self.read,
             "created_at": self.created_at.isoformat()
         }
-
-
+ 
+ 
 class Notification(db.Model):
     id         = db.Column(db.Integer, primary_key=True)
     user_id    = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -178,28 +185,28 @@ class Notification(db.Model):
     body       = db.Column(db.Text)
     read       = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-
+ 
     user = db.relationship("User", back_populates="notifications")
-
+ 
     def to_dict(self):
         return {
             "id": self.id, "icon": self.icon or "🔔",
             "title": self.title or "", "body": self.body or "",
             "read": self.read, "created_at": self.created_at.isoformat()
         }
-
-
+ 
+ 
 class SavedStartup(db.Model):
     id         = db.Column(db.Integer, primary_key=True)
     user_id    = db.Column(db.Integer, db.ForeignKey("user.id"),    nullable=False)
     startup_id = db.Column(db.Integer, db.ForeignKey("startup.id"), nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-
+ 
     user    = db.relationship("User",    back_populates="saved")
     startup = db.relationship("Startup", back_populates="saves")
     __table_args__ = (db.UniqueConstraint("user_id", "startup_id"),)
-
-
+ 
+ 
 class PipelineDeal(db.Model):
     id         = db.Column(db.Integer, primary_key=True)
     user_id    = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -208,28 +215,28 @@ class PipelineDeal(db.Model):
     ask        = db.Column(db.String(30))
     stage      = db.Column(db.String(40), default="Prospect")
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-
+ 
     def to_dict(self):
         return {"id": self.id, "user_id": self.user_id,
                 "name": self.name, "sector": self.sector or "",
                 "ask": self.ask or "", "stage": self.stage}
-
-
+ 
+ 
 # ─── Helpers ───────────────────────────────────────────────────────────────
-
+ 
 def ok(data=None, **kw):
     p = {"ok": True}
     if data is not None: p["data"] = data
     p.update(kw)
     return jsonify(p), 200
-
+ 
 def err(msg, code=400):
     return jsonify({"ok": False, "error": msg}), code
-
+ 
 def push_notif(user_id, icon, title, body=""):
     db.session.add(Notification(user_id=user_id, icon=icon, title=title, body=body))
     db.session.commit()
-
+ 
 # FIX: proper slug generator + collision resolver
 def _make_slug(name):
     slug = name.lower().strip()
@@ -237,7 +244,7 @@ def _make_slug(name):
     slug = re.sub(r'\s+', '-', slug)
     slug = re.sub(r'-+', '-', slug).strip('-')
     return slug or "startup"
-
+ 
 def _unique_slug(base, exclude_id=None):
     candidate, n = base, 2
     while True:
@@ -247,10 +254,10 @@ def _unique_slug(base, exclude_id=None):
         if not q.first():
             return candidate
         candidate = f"{base}-{n}"; n += 1
-
-
+ 
+ 
 # ─── Auth ──────────────────────────────────────────────────────────────────
-
+ 
 @app.route("/api/auth/register", methods=["POST"])
 def register():
     # FIX: guard against missing body
@@ -260,7 +267,7 @@ def register():
     email    = d.get("email",      "").lower().strip()
     password = d.get("password",   "")
     role     = d.get("role", "startup")
-
+ 
     # FIX: full input validation
     if not first or not last:    return err("First and last name are required")
     if not email:                return err("Email is required")
@@ -270,15 +277,15 @@ def register():
         return err("Invalid role")
     if User.query.filter_by(email=email).first():
         return err("Email already registered")
-
+ 
     u = User(first_name=first, last_name=last, email=email,
              password=bcrypt.generate_password_hash(password).decode(),
              role=role, company=d.get("company", "").strip())
     db.session.add(u); db.session.commit()
     push_notif(u.id, "🎉", "Welcome to Desire!", "Your account is ready.")
     return ok({"user": u.to_dict(), "token": create_access_token(identity=str(u.id))})
-
-
+ 
+ 
 @app.route("/api/auth/login", methods=["POST"])
 def login():
     d = request.get_json() or {}   # FIX: guard against missing body
@@ -286,8 +293,8 @@ def login():
     if not u or not bcrypt.check_password_hash(u.password, d.get("password", "")):
         return err("Invalid email or password", 401)
     return ok({"user": u.to_dict(), "token": create_access_token(identity=str(u.id))})
-
-
+ 
+ 
 @app.route("/api/auth/demo", methods=["POST"])
 def demo_login():
     d    = request.get_json() or {}   # FIX: guard against missing body
@@ -306,18 +313,18 @@ def demo_login():
         db.session.add(u); db.session.commit()
         push_notif(u.id, "🎉", "Welcome, demo user!", "Explore the platform.")
     return ok({"user": u.to_dict(), "token": create_access_token(identity=str(u.id))})
-
-
+ 
+ 
 @app.route("/api/auth/me")
 @jwt_required()
 def me():
     u = User.query.get(int(get_jwt_identity()))
     if not u: return err("User not found", 404)
     return ok(u.to_dict())
-
-
+ 
+ 
 # ─── User / Profile / Plan ─────────────────────────────────────────────────
-
+ 
 @app.route("/api/user/profile", methods=["PUT"])
 @jwt_required()
 def update_profile():
@@ -328,8 +335,8 @@ def update_profile():
         if f in d: setattr(u, f, d[f])
     db.session.commit()
     return ok(u.to_dict())
-
-
+ 
+ 
 @app.route("/api/user/plan", methods=["PUT"])
 @jwt_required()
 def update_plan():
@@ -344,10 +351,10 @@ def update_plan():
     db.session.commit()
     push_notif(u.id, "💳", f"Upgraded to {plan.capitalize()}!", "Subscription is now active.")
     return ok(u.to_dict())
-
-
+ 
+ 
 # ─── Startups ──────────────────────────────────────────────────────────────
-
+ 
 @app.route("/api/startups")
 def list_startups():
     q    = request.args.get("q", "").lower()
@@ -360,15 +367,15 @@ def list_startups():
     if sect:
         query = query.filter(Startup.sector.ilike(f"%{sect}%"))
     return ok([s.to_dict() for s in query.order_by(Startup.created_at.desc()).all()])
-
-
+ 
+ 
 @app.route("/api/startups/<slug>")
 def get_startup(slug):
     s = Startup.query.filter_by(slug=slug).first()
     if not s: return err("Not found", 404)
     return ok(s.to_dict())
-
-
+ 
+ 
 @app.route("/api/startups", methods=["POST"])
 @jwt_required()
 def create_startup():
@@ -377,10 +384,10 @@ def create_startup():
     d    = request.get_json() or {}
     name = d.get("name", "").strip()
     if not name: return err("Startup name is required")
-
+ 
     # FIX: deduplicate slug before INSERT — no more IntegrityError crashes
     slug = _unique_slug(_make_slug(name))
-
+ 
     s = Startup(
         owner_id=u.id, name=name, slug=slug,
         emoji=d.get("emoji","🚀"), tagline=d.get("tagline",""),
@@ -392,8 +399,8 @@ def create_startup():
     )
     db.session.add(s); db.session.commit()
     return ok(s.to_dict())
-
-
+ 
+ 
 @app.route("/api/startups/<int:sid>", methods=["PUT"])
 @jwt_required()
 def update_startup(sid):
@@ -402,24 +409,24 @@ def update_startup(sid):
     s = Startup.query.get(sid)
     if not s: return err("Not found", 404)
     if s.owner_id != u.id: return err("Forbidden", 403)
-
+ 
     d = request.get_json() or {}
     for f in ("emoji","tagline","description","stage","sector",
               "ask","arr","growth","location","founded","website"):
         if f in d: setattr(s, f, d[f])
-
+ 
     # FIX: when name changes regenerate + deduplicate slug so they stay in sync
     if "name" in d and d["name"].strip():
         s.name = d["name"].strip()
         s.slug = _unique_slug(_make_slug(s.name), exclude_id=sid)
-
+ 
     if "team" in d: s.team_json = json.dumps(d["team"])
     db.session.commit()
     return ok(s.to_dict())
-
-
+ 
+ 
 # ─── Pitch Upload (real file storage) ──────────────────────────────────────
-
+ 
 @app.route("/api/startups/<int:sid>/pitch", methods=["POST"])
 @jwt_required()
 def upload_pitch(sid):
@@ -429,26 +436,26 @@ def upload_pitch(sid):
     s = Startup.query.get(sid)
     if not s: return err("Startup not found", 404)
     if s.owner_id != u.id: return err("Forbidden", 403)
-
+ 
     if "pitch" not in request.files:
         return err("No file provided")
     file = request.files["pitch"]
     if not file.filename:
         return err("No file selected")
-
+ 
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in {".pdf", ".ppt", ".pptx"}:
         return err("Only PDF, PPT, PPTX files are allowed")
-
+ 
     upload_dir = os.path.join(BASE, "static", "pitches", str(sid))
     os.makedirs(upload_dir, exist_ok=True)
     safe_name = re.sub(r'[^a-zA-Z0-9._-]', '_', file.filename)
     filepath  = os.path.join(upload_dir, safe_name)
     file.save(filepath)
-
+ 
     file_url  = f"/static/pitches/{sid}/{safe_name}"
     file_size = os.path.getsize(filepath)
-
+ 
     pitches = [p for p in s.pitches if p["name"] != safe_name]   # overwrite same name
     pitches.append({
         "name": safe_name, "url": file_url, "size": file_size,
@@ -457,8 +464,8 @@ def upload_pitch(sid):
     s.pitch_json = json.dumps(pitches)
     db.session.commit()
     return ok({"pitches": s.pitches})
-
-
+ 
+ 
 @app.route("/api/startups/<int:sid>/pitch/<filename>", methods=["DELETE"])
 @jwt_required()
 def delete_pitch(sid, filename):
@@ -467,18 +474,18 @@ def delete_pitch(sid, filename):
     s = Startup.query.get(sid)
     if not s: return err("Not found", 404)
     if s.owner_id != u.id: return err("Forbidden", 403)
-
+ 
     safe_name = re.sub(r'[^a-zA-Z0-9._-]', '_', filename)
     fp = os.path.join(BASE, "static", "pitches", str(sid), safe_name)
     if os.path.exists(fp): os.remove(fp)
-
+ 
     s.pitch_json = json.dumps([p for p in s.pitches if p["name"] != safe_name])
     db.session.commit()
     return ok({"pitches": s.pitches})
-
-
+ 
+ 
 # ─── Saved / Watchlist ─────────────────────────────────────────────────────
-
+ 
 @app.route("/api/startups/<int:sid>/save", methods=["POST"])
 @jwt_required()
 def toggle_save(sid):
@@ -489,18 +496,18 @@ def toggle_save(sid):
         return ok({"saved": False})
     db.session.add(SavedStartup(user_id=uid, startup_id=sid)); db.session.commit()
     return ok({"saved": True})
-
-
+ 
+ 
 @app.route("/api/user/saved")
 @jwt_required()
 def get_saved():
     uid  = int(get_jwt_identity())
     rows = SavedStartup.query.filter_by(user_id=uid).all()
     return ok([r.startup.to_dict() for r in rows])
-
-
+ 
+ 
 # ─── Meetings ──────────────────────────────────────────────────────────────
-
+ 
 @app.route("/api/meetings")
 @jwt_required()
 def list_meetings():
@@ -509,8 +516,8 @@ def list_meetings():
     recv = Meeting.query.filter_by(receiver_id=uid).all()
     all_m = {m.id: m for m in sent + recv}
     return ok([m.to_dict() for m in sorted(all_m.values(), key=lambda x: x.created_at, reverse=True)])
-
-
+ 
+ 
 @app.route("/api/meetings", methods=["POST"])
 @jwt_required()
 def create_meeting():
@@ -530,10 +537,10 @@ def create_meeting():
                f"Meeting request from {sender.first_name} {sender.last_name}",
                f"{m.meet_type} on {m.date} at {m.time}")
     return ok(m.to_dict())
-
-
+ 
+ 
 VALID_STATUSES = {"pending", "confirmed", "cancelled", "done"}
-
+ 
 @app.route("/api/meetings/<int:mid>/status", methods=["PUT"])
 @jwt_required()
 def update_meeting_status(mid):
@@ -542,29 +549,29 @@ def update_meeting_status(mid):
     if not m: return err("Not found", 404)
     if m.sender_id != uid and m.receiver_id != uid:
         return err("Forbidden", 403)
-
+ 
     d          = request.get_json() or {}
     new_status = d.get("status", "")
-
+ 
     # FIX: validate status value
     if new_status not in VALID_STATUSES:
         return err(f"Invalid status. Allowed: {', '.join(VALID_STATUSES)}")
-
+ 
     # FIX: role-based transition rules
     is_receiver = (m.receiver_id == uid)
-
+ 
     if new_status == "confirmed" and not is_receiver:
         return err("Only the meeting recipient can confirm")
     if new_status == "pending":
         return err("Cannot revert meeting to pending")
-
+ 
     m.status = new_status
     db.session.commit()
     return ok(m.to_dict())
-
-
+ 
+ 
 # ─── Messages ──────────────────────────────────────────────────────────────
-
+ 
 @app.route("/api/messages/threads")
 @jwt_required()
 def message_threads():
@@ -590,8 +597,8 @@ def message_threads():
             "unread": unread
         })
     return ok(sorted(threads, key=lambda x: x["last_time"], reverse=True))
-
-
+ 
+ 
 @app.route("/api/messages/<int:pid>")
 @jwt_required()
 def get_messages(pid):
@@ -605,8 +612,8 @@ def get_messages(pid):
             msg.read = True
     db.session.commit()
     return ok([msg.to_dict() for msg in msgs])
-
-
+ 
+ 
 @app.route("/api/messages/<int:pid>", methods=["POST"])
 @jwt_required()
 def send_message(pid):
@@ -619,10 +626,10 @@ def send_message(pid):
     sender = User.query.get(uid)
     push_notif(pid, "💬", f"New message from {sender.first_name} {sender.last_name}", body[:80])
     return ok(msg.to_dict())
-
-
+ 
+ 
 # ─── Notifications ─────────────────────────────────────────────────────────
-
+ 
 @app.route("/api/notifications")
 @jwt_required()
 def list_notifications():
@@ -630,8 +637,8 @@ def list_notifications():
     notifs = Notification.query.filter_by(user_id=uid)\
              .order_by(Notification.created_at.desc()).limit(50).all()
     return ok([n.to_dict() for n in notifs])
-
-
+ 
+ 
 @app.route("/api/notifications/read-all", methods=["PUT"])
 @jwt_required()
 def mark_all_read():
@@ -639,8 +646,8 @@ def mark_all_read():
     Notification.query.filter_by(user_id=uid, read=False).update({"read": True})
     db.session.commit()
     return ok()
-
-
+ 
+ 
 @app.route("/api/notifications/<int:nid>/read", methods=["PUT"])
 @jwt_required()
 def mark_read(nid):
@@ -648,18 +655,18 @@ def mark_read(nid):
     n   = Notification.query.filter_by(id=nid, user_id=uid).first()
     if n: n.read = True; db.session.commit()
     return ok()
-
-
+ 
+ 
 # ─── Pipeline ──────────────────────────────────────────────────────────────
-
+ 
 @app.route("/api/pipeline")
 @jwt_required()
 def get_pipeline():
     uid   = int(get_jwt_identity())
     deals = PipelineDeal.query.filter_by(user_id=uid).order_by(PipelineDeal.created_at).all()
     return ok([d.to_dict() for d in deals])
-
-
+ 
+ 
 @app.route("/api/pipeline", methods=["POST"])
 @jwt_required()
 def add_pipeline():
@@ -670,8 +677,8 @@ def add_pipeline():
                         stage=d.get("stage","Prospect"))
     db.session.add(deal); db.session.commit()
     return ok(deal.to_dict())
-
-
+ 
+ 
 @app.route("/api/pipeline/<int:did>", methods=["PUT"])
 @jwt_required()
 def update_pipeline(did):
@@ -682,8 +689,8 @@ def update_pipeline(did):
     if "stage" in d: deal.stage = d["stage"]
     db.session.commit()
     return ok(deal.to_dict())
-
-
+ 
+ 
 @app.route("/api/pipeline/<int:did>", methods=["DELETE"])
 @jwt_required()
 def delete_pipeline(did):
@@ -691,10 +698,10 @@ def delete_pipeline(did):
     deal = PipelineDeal.query.filter_by(id=did, user_id=uid).first()
     if deal: db.session.delete(deal); db.session.commit()
     return ok()
-
-
+ 
+ 
 # ─── Serve Static Frontend ─────────────────────────────────────────────────
-
+ 
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def serve(path):
@@ -702,10 +709,10 @@ def serve(path):
     if path and os.path.exists(fp):
         return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, "index.html")
-
-
+ 
+ 
 # ─── Seed Demo Startups ────────────────────────────────────────────────────
-
+ 
 def seed():
     if Startup.query.count() > 0:
         return
@@ -716,7 +723,7 @@ def seed():
                         password=bcrypt.generate_password_hash("system").decode(),
                         role="startup", company="Desire")
         db.session.add(sys_user); db.session.commit()
-
+ 
     demo = [
         {"name":"NeuralNest AI","slug":"neuralnest-ai","emoji":"🤖",
          "tagline":"Autonomous AI agents for enterprise workflow automation",
@@ -760,13 +767,14 @@ def seed():
         db.session.add(Startup(owner_id=sys_user.id, team_json=json.dumps(team), **data))
     db.session.commit()
     print("✅  Demo data seeded")
-
-
+ 
+ 
 # ─── Init (works with both `python app.py` and gunicorn) ──────────────────
 # FIX: moved out of __main__ block so tables are created under any WSGI server
 with app.app_context():
     db.create_all()
     seed()
-
+ 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+ 
